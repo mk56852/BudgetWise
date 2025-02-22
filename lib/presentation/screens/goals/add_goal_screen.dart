@@ -49,8 +49,9 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
   }
 
   void _pickDate() async {
-    if (!_isDeadlineEnabled)
+    if (!_isDeadlineEnabled) {
       return; // Prevent opening date picker if checkbox is unchecked
+    }
 
     DateTime? picked = await showDatePicker(
       context: context,

@@ -8,11 +8,11 @@ class FilterModal extends StatefulWidget {
   final DateTime? initialEndDate;
 
   const FilterModal({
-    Key? key,
+    super.key,
     required this.initialAmountFilter,
     this.initialStartDate,
     this.initialEndDate,
-  }) : super(key: key);
+  });
 
   @override
   _FilterModalState createState() => _FilterModalState();

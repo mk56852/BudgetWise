@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 class GoalDetailScreen extends StatelessWidget {
+  const GoalDetailScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,7 +139,7 @@ class DateItem extends StatelessWidget {
   final String date;
   final String day;
 
-  const DateItem({required this.date, required this.day});
+  const DateItem({super.key, required this.date, required this.day});
 
   @override
   Widget build(BuildContext context) {

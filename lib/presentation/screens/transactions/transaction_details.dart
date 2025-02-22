@@ -8,8 +8,7 @@ class TransactionDetailsScreen extends StatelessWidget {
   final Transaction transaction;
   final Function? refresh;
   const TransactionDetailsScreen(
-      {Key? key, required this.transaction, this.refresh})
-      : super(key: key);
+      {super.key, required this.transaction, this.refresh});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +32,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                     width: 20,
                   ),
                   const Center(
-                    child: const Text(
+                    child: Text(
                       "Transaction Details",
                       style: TextStyle(
                         fontSize: 24,

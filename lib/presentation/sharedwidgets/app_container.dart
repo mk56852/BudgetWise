@@ -5,7 +5,7 @@ class AppContainer extends StatelessWidget {
   final double? height;
   final bool fillWidth;
   final Widget child;
-  AppContainer(
+  const AppContainer(
       {super.key, required this.child, this.fillWidth = true, this.height});
 
   @override

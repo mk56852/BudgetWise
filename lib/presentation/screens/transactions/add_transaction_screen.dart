@@ -39,7 +39,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> handleSubmit() async {
-    Transaction transaction = new Transaction(
+    Transaction transaction = Transaction(
         id: generateId("Trans:"),
         type: isIncome ? "income" : "expense",
         amount: double.parse(_amountController.text),
@@ -83,7 +83,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Center(
-            child: const Text(
+            child: Text(
               "Add Transaction",
               style: TextStyle(
                 fontSize: 24,

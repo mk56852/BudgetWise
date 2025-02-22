@@ -6,7 +6,7 @@ class AppActionButton extends StatelessWidget {
   final String text;
   final IconData icon;
   final Function onTab;
-  AppActionButton(
+  const AppActionButton(
       {super.key,
       required this.text,
       required this.icon,
@@ -18,6 +18,7 @@ class AppActionButton extends StatelessWidget {
     return InkWell(
       onTap: () => onTab(),
       child: AppContainer(
+        height: height,
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -34,7 +35,6 @@ class AppActionButton extends StatelessWidget {
             ],
           ),
         ),
-        height: height,
       ),
     );
   }
@@ -46,12 +46,11 @@ class AppIconButton extends StatelessWidget {
   final Function onTap;
   final String text;
   const AppIconButton(
-      {Key? key,
+      {super.key,
       required this.icon,
       required this.onTap,
       required this.text,
-      this.color = Colors.white})
-      : super(key: key);
+      this.color = Colors.white});
 
   @override
   Widget build(BuildContext context) {

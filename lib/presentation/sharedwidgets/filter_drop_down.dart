@@ -9,13 +9,13 @@ class DropDownFilter extends StatelessWidget {
   final String hint;
 
   const DropDownFilter({
-    Key? key,
+    super.key,
     required this.values,
     required this.selectedValue,
     required this.onChanged,
     required this.icon,
     required this.hint,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

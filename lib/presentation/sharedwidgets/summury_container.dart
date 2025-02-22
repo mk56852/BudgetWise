@@ -7,11 +7,11 @@ class SummaryContainer extends StatelessWidget {
   final String body;
   final double? minHeight;
   const SummaryContainer({
-    Key? key,
+    super.key,
     required this.title,
     required this.body,
     this.minHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

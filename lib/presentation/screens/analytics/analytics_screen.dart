@@ -1,5 +1,4 @@
 import 'package:budget_wise/core/utils/utils.dart';
-
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
@@ -22,9 +21,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     double totalSaves = AppServices.savingsGoalService.getAllSavedAmount();
     int budgetPercent = calculatePercentage(budgetAmount, totalSaves);
     int savesPercent = calculatePercentage(totalSaves, budgetAmount);
-    int goals_number =
+    int goalsNumber =
         AppServices.savingsGoalService.getAllSavingsGoals().length;
-    int achieved_goal = AppServices.savingsGoalService
+    int achievedGoal = AppServices.savingsGoalService
         .getAllSavingsGoals()
         .where((goal) => goal.isAchieved)
         .length;
@@ -36,7 +35,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Center(
-          child: const Text(
+          child: Text(
             "Analytics",
             style: TextStyle(
               fontSize: 24,
@@ -58,7 +57,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: InfoCard(
                     title: "Expenses",
                     subTitle: "Total expense",
-                    body: totalExpense.toString() + " DT",
+                    body: "$totalExpense DT",
                     graphColor: Colors.redAccent,
                     isPositive: false)),
             SizedBox(
@@ -68,7 +67,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: InfoCard(
                     title: "Incomes",
                     subTitle: "Total incomes",
-                    body: totalIncome.toString() + " DT",
+                    body: "$totalIncome DT",
                     graphColor: Colors.greenAccent,
                     isPositive: true))
           ],
@@ -82,7 +81,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: InfoCard(
                     title: "Savings Goal",
                     subTitle: "Total Savings goal",
-                    body: goals_number.toString() + " Goals",
+                    body: goalsNumber.toString() + " Goals",
                     graphColor: Colors.greenAccent,
                     isPositive: true)),
             SizedBox(
@@ -92,7 +91,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: InfoCard(
                     title: "Achieved Goals",
                     subTitle: "Total achieved goal",
-                    body: achieved_goal.toString() + " Goals",
+                    body: achievedGoal.toString() + " Goals",
                     graphColor: Colors.redAccent,
                     isPositive: true))
           ],
@@ -152,7 +151,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     PieChartSectionData(
                       color: Colors.white70,
                       value: bPer.toDouble(),
-                      title: bPer.toString() + " %",
+                      title: "$bPer %",
                       radius: 40,
                       titleStyle: TextStyle(
                         fontSize: 18,
@@ -164,7 +163,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     PieChartSectionData(
                       color: Colors.blueAccent.withOpacity(0.1),
                       value: sPer.toDouble(),
-                      title: sPer.toString() + " %",
+                      title: "$sPer %",
                       radius: 50,
                       titleStyle: TextStyle(
                         fontSize: 18,
@@ -188,13 +187,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 _generateInfoItem(
                   "Available Budget",
-                  bVal.toString() + " DT",
+                  "$bVal DT",
                   Colors.blueAccent.withOpacity(0.1),
                 ),
                 _generateInfoItem(
-                    "Saved For Goals", sVal.toString() + "DT", Colors.white70),
-                _generateInfoItem("Total Budget",
-                    (sVal + bVal).toString() + " DT", Colors.transparent),
+                    "Saved For Goals", "${sVal}DT", Colors.white70),
+                _generateInfoItem(
+                    "Total Budget", "${sVal + bVal} DT", Colors.transparent),
               ],
             ),
           )

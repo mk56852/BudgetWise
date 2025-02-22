@@ -7,13 +7,13 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (onTab == null)
+    if (onTab == null) {
       return Text(
         text,
         style: TextStyle(
             color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
       );
-    else
+    } else {
       return Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,5 +30,6 @@ class SectionTitle extends StatelessWidget {
           )
         ],
       );
+    }
   }
 }

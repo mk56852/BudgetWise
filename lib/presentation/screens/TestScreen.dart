@@ -19,11 +19,7 @@ class TestScreen extends StatelessWidget {
               ElevatedButton(
                   onPressed: () {
                     Budget b = AppServices.budgetService.getBudget()!;
-                    print(b.amount.toString() +
-                        "  " +
-                        b.lastUpdated.toString() +
-                        "  " +
-                        b.history.length.toString());
+                    print("${b.amount}  ${b.lastUpdated}  ${b.history.length}");
                   },
                   child: Text("budget")),
               ElevatedButton(

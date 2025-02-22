@@ -31,6 +31,9 @@ import 'data/models/category.dart';
 import 'data/models/savings_goal.dart';
 import 'data/models/analytics.dart';
 import 'data/models/settings.dart';
+import 'data/models/expense_limit.dart'; // Import the ExpenseLimit model
+import 'data/repositories/expense_limit_repository.dart'; // Import the ExpenseLimitRepository
+import 'services/expense_limit_service.dart'; // Import the ExpenseLimitService
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +53,9 @@ void main() async {
   Hive.registerAdapter(SettingsAdapter());
   Hive.registerAdapter(BudgetHistoryEntryAdapter());
 
+  Hive.registerAdapter(
+      ExpenseLimitAdapter()); // Register the ExpenseLimit adapter
+
   await Hive.openBox<User>('users');
   await Hive.openBox<Budget>('budgets');
   await Hive.openBox<MoneySource>('money_sources');
@@ -59,6 +65,7 @@ void main() async {
   await Hive.openBox<AppNotification>('notifications');
   await Hive.openBox<Analytics>('analytics');
   await Hive.openBox<Settings>('settings');
+  await Hive.openBox<ExpenseLimit>('expense_limits');
 
   final userRepository = UserRepository();
   final budgetRepository = BudgetRepository();
@@ -68,6 +75,8 @@ void main() async {
   final notificationRepository = NotificationRepository();
   final analyticsRepository = AnalyticsRepository();
   final settingsRepository = SettingsRepository();
+  final expenseLimitRepository =
+      ExpenseLimitRepository(); // Initialize the ExpenseLimitRepository
 
   AppServices.userService = UserService(userRepository);
   AppServices.budgetService = BudgetService(budgetRepository);
@@ -78,30 +87,21 @@ void main() async {
   AppServices.notificationService = NotificationService(notificationRepository);
   AppServices.analyticsService = AnalyticsService(analyticsRepository);
   AppServices.settingsService = SettingsService(settingsRepository);
+  AppServices.expenseLimitService = ExpenseLimitService(
+      expenseLimitRepository); // Add the ExpenseLimitService
 
   Budget? budget = AppServices.budgetService.getBudget();
   if (budget == null) {
     AppServices.budgetService.addBudget(Budget(
         id: generateId("Budget:"), amount: 0, lastUpdated: DateTime.now()));
   }
-  AppServices.userService.addUser(User(
-      id: generateId("UXID:"),
-      name: "User",
-      currency: "DT",
-      createdAt: DateTime.now(),
-      lastLogin: DateTime.now()));
-  AppServices.settingsService.addSettings(Settings(
-      id: generateId("Setting:"),
-      theme: "dark",
-      notificationsEnabled: true,
-      limitNotificationsEnabled: true,
-      currency: "DT",
-      weeklyLimitEnabled: true,
-      monthlyLimitEnabled: true));
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

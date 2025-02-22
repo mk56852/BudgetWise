@@ -6,7 +6,7 @@ import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class SavingsGoalListScreen extends StatefulWidget {
-  const SavingsGoalListScreen({Key? key}) : super(key: key);
+  const SavingsGoalListScreen({super.key});
 
   @override
   _SavingsGoalListScreenState createState() => _SavingsGoalListScreenState();
@@ -19,7 +19,7 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
 
   // Filtering options:
   String _selectedPriorityFilter = "All";
-  bool _showAchievedOnly = false;
+  final bool _showAchievedOnly = false;
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
     try {
       // Replace this with your actual method to retrieve savings goals.
       List<SavingsGoal> goals =
-          await AppServices.savingsGoalService.getAllSavingsGoals();
+          AppServices.savingsGoalService.getAllSavingsGoals();
       setState(() {
         _allGoals = goals;
       });

@@ -205,8 +205,9 @@ class _GoalsDetailsState extends State<GoalsDetails> {
     int? daysRest;
     String description = _goal.notes ?? "there is no description";
     int savingDaily = _goal.getDailySavingsTarget();
-    if (_goal.deadline != null)
+    if (_goal.deadline != null) {
       daysRest = _goal.deadline!.difference(DateTime.now()).inDays;
+    }
     return MainContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,9 +308,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
           if (daysRest != null)
             TipWidget(
-              message: "You Still have " +
-                  daysRest.toString() +
-                  " days to achieve your goal",
+              message: "You Still have $daysRest days to achieve your goal",
               iconColor: Colors.green,
             ),
           SizedBox(
@@ -317,9 +316,8 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
           if (savingDaily != 0)
             TipWidget(
-              message: "You can save " +
-                  savingDaily.toString() +
-                  " each day and you will achieve your goal",
+              message:
+                  "You can save $savingDaily each day and you will achieve your goal",
               iconColor: Colors.green,
             ),
           SizedBox(height: 20),

@@ -6,7 +6,8 @@ import 'package:intl/intl.dart';
 class RecentTransactions extends StatelessWidget {
   final Transaction transaction;
   final Function? refresh;
-  RecentTransactions({super.key, required this.transaction, this.refresh});
+  const RecentTransactions(
+      {super.key, required this.transaction, this.refresh});
 
   @override
   Widget build(BuildContext context) {

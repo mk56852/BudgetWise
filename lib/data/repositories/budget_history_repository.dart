@@ -16,6 +16,6 @@ class BudgetHisotryRepository {
   }
 
   Future<List<BudgetHistoryEntry>> getAll() async {
-    return await _budgetBox.values.toList();
+    return _budgetBox.values.toList();
   }
 }

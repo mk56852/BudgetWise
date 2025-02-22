@@ -9,15 +9,12 @@ class InfoCard extends StatelessWidget {
   final bool isPositive;
 
   const InfoCard(
-      {Key? key,
+      {super.key,
       required this.title,
       required this.subTitle,
       required this.body,
       required this.graphColor,
-      required this.isPositive})
-      : super(
-          key: key,
-        );
+      required this.isPositive});
 
   @override
   Widget build(BuildContext context) {

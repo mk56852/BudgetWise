@@ -101,7 +101,7 @@ class HomeScreen extends StatelessWidget {
               ),
               Center(
                 child: Text(
-                  "\$" + currentBudget.amount.toString(),
+                  "\$${currentBudget.amount}",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 36,
@@ -207,8 +207,7 @@ class TransactionsList extends StatelessWidget {
   final int numberOfItems;
   final Function showAll;
   const TransactionsList(
-      {Key? key, required this.numberOfItems, required this.showAll})
-      : super(key: key);
+      {super.key, required this.numberOfItems, required this.showAll});
 
   @override
   Widget build(BuildContext context) {
@@ -264,10 +263,8 @@ class TransactionsList extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ...transactions
-                  .map((transaction) =>
-                      RecentTransactions(transaction: transaction))
-                  .toList(),
+              ...transactions.map((transaction) =>
+                  RecentTransactions(transaction: transaction)),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -364,7 +361,7 @@ class SavingsGoalItems extends StatelessWidget {
         } else {
           return Column(
             children: [
-              ...savingsGoals.map((goal) => GoalProgress(goal: goal)).toList(),
+              ...savingsGoals.map((goal) => GoalProgress(goal: goal)),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -419,7 +416,7 @@ class BudgetChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
         valueListenable: AppServices.budgetService.budgetBoxListenable,
-        builder: (_, Box<Budget> box, _w) {
+        builder: (_, Box<Budget> box, w) {
           List<BudgetHistoryEntry> budgetHistory =
               AppServices.budgetService.getBudget()!.history;
 

@@ -3,7 +3,7 @@ import 'package:budget_wise/presentation/screens/analytics/analytics_screen.dart
 import 'package:budget_wise/presentation/screens/goals/SavingsGoalsList.dart';
 import 'package:budget_wise/presentation/screens/home/home_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/transactions_screen.dart';
-
+import 'package:budget_wise/presentation/screens/user/user_profil_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -29,9 +29,16 @@ final List<SalomonBottomBarItem> bottomNavItems = [
     title: Text("Analytics"),
     selectedColor: Colors.white,
   ),
+  SalomonBottomBarItem(
+    icon: Icon(Icons.person),
+    title: Text("Settings"),
+    selectedColor: Colors.white,
+  ),
 ];
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -45,6 +52,7 @@ class _MainScreenState extends State<MainScreen> {
         TransactionsScreen(),
         SavingsGoalListScreen(),
         AnalyticsScreen(),
+        UserProfileScreen()
       ];
 
   void _handleMenuButtonPressed() {
@@ -87,8 +95,9 @@ class _MainScreenState extends State<MainScreen> {
         //     blurRadius: 0.0,
         //   ),
         // ],
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
+      drawer: _generateDrawer(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Container(
@@ -124,7 +133,6 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: Colors.black, // Dark background
         ),
       ),
-      drawer: _generateDrawer(),
     );
   }
 
