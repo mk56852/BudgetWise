@@ -29,8 +29,20 @@ class TransactionService {
     // Log the budget change
     budget.updateBudget(newAmount, DateTime.now(), transaction.id);
 
+    // Check if the transaction is recurring
+    if (transaction.isRecurring) {
+      // If the transaction date is greater than now, skip budget update
+      if (transaction.date.isAfter(DateTime.now())) {
+        // Save the transaction without updating the budget
+        _transactionRepository.addTransaction(transaction);
+        return;
+      }
+    }
+
     // Save the updated budget
     await _budgetRespository.updateBudget(budget);
+    // Save the transaction
+    _transactionRepository.addTransaction(transaction);
 
     // Save the transaction
     _transactionRepository.addTransaction(transaction);

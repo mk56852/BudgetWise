@@ -325,10 +325,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     required double limit,
     required double usedAmount,
     bool available = true,
-    bool warning = false,
   }) {
     double progress = (limit > 0) ? (usedAmount / limit).clamp(0.0, 1.0) : 0.0;
-
+    bool warning = limit < usedAmount;
     return Opacity(
       opacity: available ? 1 : 0.2,
       child: Container(
@@ -354,7 +353,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               child: CircleAvatar(
                 radius: 5,
                 backgroundColor:
-                    warning ? const Color(0xFFF1C21B) : Colors.grey,
+                    warning ? Colors.redAccent : Colors.greenAccent,
               ),
             ),
             Icon(

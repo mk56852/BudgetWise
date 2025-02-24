@@ -21,6 +21,7 @@ dependencies:
   path_provider: ^2.1.5
   percent_indicator: ^4.2.4
   salomon_bottom_bar: ^3.3.2
+  timezone: ^0.10.0
 
 dev_dependencies:
   flutter_test:

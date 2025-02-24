@@ -14,6 +14,7 @@ import 'package:budget_wise/services/analytic_service.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:budget_wise/services/budget_service.dart';
 import 'package:budget_wise/services/category_service.dart';
+import 'package:budget_wise/services/notification_manager.dart';
 import 'package:budget_wise/services/notification_service.dart';
 import 'package:budget_wise/services/savings_goal_service.dart';
 import 'package:budget_wise/services/settings_service.dart';
@@ -33,10 +34,15 @@ import 'data/models/analytics.dart';
 import 'data/models/settings.dart';
 import 'data/models/expense_limit.dart'; // Import the ExpenseLimit model
 import 'data/repositories/expense_limit_repository.dart'; // Import the ExpenseLimitRepository
-import 'services/expense_limit_service.dart'; // Import the ExpenseLimitService
+import 'services/expense_limit_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationManager().init();
 
   final appDocumentDirectory =
       await path_provider.getApplicationDocumentsDirectory();

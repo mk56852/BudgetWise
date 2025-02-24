@@ -161,7 +161,7 @@ class _MainScreenState extends State<MainScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Image.asset(
-                  'assets/images/flutter_logo.png',
+                  'assets/images/drag.png',
                 ),
               ),
               ListTile(
