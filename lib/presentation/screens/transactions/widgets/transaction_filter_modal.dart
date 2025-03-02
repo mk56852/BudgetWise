@@ -4,12 +4,17 @@ import 'package:intl/intl.dart';
 
 class FilterModal extends StatefulWidget {
   final String initialAmountFilter;
+  bool initialIsRecurring; // Change to non-final to allow updates
+
   final DateTime? initialStartDate;
   final DateTime? initialEndDate;
+  String status;
+  FilterModal({
+    this.initialIsRecurring = false, // Initialize with a default value
 
-  const FilterModal({
     super.key,
     required this.initialAmountFilter,
+    this.status = "both",
     this.initialStartDate,
     this.initialEndDate,
   });
@@ -23,6 +28,8 @@ class _FilterModalState extends State<FilterModal> {
   DateTime? _startDate;
   DateTime? _endDate;
   String? _dateError;
+  bool? _isRecurring;
+  late String _status;
 
   @override
   void initState() {
@@ -31,6 +38,8 @@ class _FilterModalState extends State<FilterModal> {
     _selectedAmountFilter = widget.initialAmountFilter;
     _startDate = widget.initialStartDate;
     _endDate = widget.initialEndDate;
+    _isRecurring = widget.initialIsRecurring;
+    _status = widget.status;
   }
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
@@ -74,7 +83,9 @@ class _FilterModalState extends State<FilterModal> {
       Navigator.pop(context, {
         'amountFilter': _selectedAmountFilter,
         'startDate': _startDate,
-        'endDate': _endDate
+        'endDate': _endDate,
+        "isRecurring": _isRecurring,
+        "status": _status
       });
     }
   }
@@ -158,7 +169,62 @@ class _FilterModalState extends State<FilterModal> {
               ),
             ],
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 20),
+          Text(
+            "Filter by transaction status",
+            style: TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Column(
+            children: [
+              RadioListTile<String>(
+                activeColor: Colors.blue,
+                title: Text(
+                  "Achieved tranasctions",
+                  style: TextStyle(color: Colors.white),
+                ),
+                value: "achieved",
+                groupValue: _status,
+                onChanged: (value) {
+                  setState(() {
+                    _status = value!;
+                  });
+                },
+              ),
+              RadioListTile<String>(
+                activeColor: Colors.blue,
+                title: Text(
+                  "Not achieved transactions",
+                  style: TextStyle(color: Colors.white),
+                ),
+                value: "not_achieved",
+                groupValue: _status,
+                onChanged: (value) {
+                  setState(() {
+                    _status = value!;
+                  });
+                },
+              ),
+              RadioListTile<String>(
+                activeColor: Colors.blue,
+                title: Text(
+                  "Both",
+                  style: TextStyle(color: Colors.white),
+                ),
+                value: "both",
+                groupValue: _status,
+                onChanged: (value) {
+                  setState(() {
+                    _status = value!;
+                  });
+                },
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
 
           // Date Picker Section
           Text(
@@ -218,7 +284,27 @@ class _FilterModalState extends State<FilterModal> {
           ],
           SizedBox(height: 30),
 
+          // Recurring Filter Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Recurring Transactions",
+                  style: TextStyle(color: Colors.white)),
+              Switch(
+                value: _isRecurring!, // Use the local state variable
+
+                onChanged: (value) {
+                  setState(() {
+                    _isRecurring = value; // Update the state
+                  });
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+
           // Apply Button
+
           AppActionButton(
             text: "Apply Filters",
             icon: Icons.settings,

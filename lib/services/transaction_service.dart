@@ -90,7 +90,33 @@ class TransactionService {
     budget.updateBudget(newAmount, DateTime.now(), txn.id);
   }
 
-  // Get all transactions
+  // Get all transactions with optional filters
+  List<Transaction> getAllTransactionsWithFilter(
+      {bool? isRecurring, String? achievementStatus}) {
+    List<Transaction> transactions =
+        _transactionRepository.getAllTransactions();
+
+    // Apply filters if provided
+    if (isRecurring != null) {
+      transactions = transactions
+          .where((transaction) => transaction.isRecurring == isRecurring)
+          .toList();
+    }
+
+    if (achievementStatus != null) {
+      transactions = transactions.where((transaction) {
+        if (achievementStatus == 'achieved') {
+          return transaction.isAchieved;
+        } else if (achievementStatus == 'not achieved yet') {
+          return !transaction.isAchieved;
+        }
+        return true; // For 'both', return all
+      }).toList();
+    }
+
+    return transactions;
+  }
+
   List<Transaction> getAllTransactions() {
     return _transactionRepository.getAllTransactions();
   }

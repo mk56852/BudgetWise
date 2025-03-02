@@ -48,7 +48,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => FilterModal(
-        initialAmountFilter: activeFilters?['amountFilter'] ?? 'None',
+        initialAmountFilter:
+            activeFilters?['amountFilter'] ?? 'None', // Amount filter
+        initialIsRecurring:
+            activeFilters?['isRecurring'] ?? false, // Recurring filter
+
         initialStartDate: activeFilters?['startDate'],
         initialEndDate: activeFilters?['endDate'],
       ),
@@ -69,7 +73,22 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     filteredData = List.from(data);
 
-    // Filter by Date Range
+    // Filter by Date Range and Recurring Status
+    if (filters['isRecurring'] != null) {
+      filteredData = filteredData
+          .where((transaction) =>
+              transaction.isRecurring == filters['isRecurring'])
+          .toList();
+    }
+
+    if (filters['status'] != "both") {
+      String status = filters['status'];
+      filteredData = filteredData
+          .where(
+              (transaction) => transaction.isAchieved == (status == "achieved"))
+          .toList();
+    }
+
     if (startDate != null && endDate != null) {
       filteredData = filteredData.where((transaction) {
         return transaction.date.isAfter(startDate) &&
@@ -77,7 +96,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }).toList();
     }
 
-    // Filter by Amount
+    // Filter by Amount and Recurring Status
+    if (filters['isRecurring'] != null) {
+      filteredData = filteredData
+          .where((transaction) =>
+              transaction.isRecurring == filters['isRecurring'])
+          .toList();
+    }
+
     if (amountFilter == 'High To Low') {
       filteredData.sort((a, b) => b.amount.compareTo(a.amount));
     } else if (amountFilter == 'Low To High') {
@@ -88,7 +114,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void _clearFilters() {
     setState(() {
       activeFilters = null;
-      filteredData = List.from(data);
+      filteredData = List.from(data); // Start with all data
     });
   }
 
