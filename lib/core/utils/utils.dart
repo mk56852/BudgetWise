@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:budget_wise/data/models/transaction.dart';
+
 String generateId(String header) {
   final random = Random();
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0125';
@@ -48,4 +50,22 @@ int calculatePercentage(double firstValue, double secondValue) {
 
   double percentage = (firstValue / (firstValue + secondValue)) * 100;
   return percentage.toInt(); // Convert to an integer
+}
+
+int monthsBetween(DateTime date, {bool inverse = false}) {
+  DateTime now = DateTime.now();
+
+  int yearsDiff = date.year - now.year;
+  int monthsDiff = date.month - now.month;
+
+  int result = (yearsDiff * 12) + monthsDiff;
+
+  return inverse ? result.abs() : result;
+}
+
+bool isRecurringTransactionDue(Transaction txn) {
+  if (!txn.isRecurring) return false;
+  DateTime now = DateTime.now();
+  // The transaction is due if now is equal or after the scheduled date.
+  return now.isAfter(txn.date) || now.isAtSameMomentAs(txn.date);
 }

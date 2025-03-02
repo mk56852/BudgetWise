@@ -16,7 +16,7 @@ class Transaction {
   String? categoryId;
 
   @HiveField(4)
-  final DateTime date;
+  DateTime date;
 
   @HiveField(5)
   final String? description;
@@ -24,13 +24,16 @@ class Transaction {
   @HiveField(6)
   final bool isRecurring;
 
-  Transaction({
-    required this.id,
-    required this.type,
-    required this.amount,
-    this.categoryId,
-    required this.date,
-    this.description,
-    this.isRecurring = false,
-  });
+  @HiveField(7)
+  bool isAchieved;
+
+  Transaction(
+      {required this.id,
+      required this.type,
+      required this.amount,
+      this.categoryId,
+      required this.date,
+      this.description,
+      this.isRecurring = false,
+      this.isAchieved = false});
 }
