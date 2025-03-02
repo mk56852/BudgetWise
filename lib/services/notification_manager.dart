@@ -52,11 +52,19 @@ class NotificationManager {
     final FlutterLocalNotificationsPlugin _notificationsPlugin =
         FlutterLocalNotificationsPlugin();
 
-    // Convert DateTime to correct timezone
-    tz.TZDateTime scheduledDate =
-        tz.TZDateTime.from(scheduledTime.toLocal(), tz.local);
+    // Convert DateTime to correct timezone and set to 1 PM
+    tz.TZDateTime scheduledDate = tz.TZDateTime.from(
+      DateTime(
+        scheduledTime.year,
+        scheduledTime.month,
+        scheduledTime.day,
+        13, // 1 PM
+      ),
+      tz.local,
+    );
 
     // 🛑 Check if the scheduled time is in the past
+
     if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
       print(
           "⚠ Cannot schedule notification in the past! Adjusting to 5 seconds later.");

@@ -1,5 +1,6 @@
 import 'package:budget_wise/data/models/budget.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../data/models/transaction.dart';
@@ -14,7 +15,8 @@ class TransactionService {
   ValueListenable<Box<Transaction>> get transactionsListenable =>
       _transactionRepository.transactionsListenable;
 
-  Future<void> addTransaction(Transaction transaction) async {
+  Future<void> addTransaction(
+      BuildContext context, Transaction transaction) async {
     // Fetch the current budget
     Budget budget = _budgetRespository.getBudget()!;
 
@@ -27,25 +29,65 @@ class TransactionService {
     }
 
     // Log the budget change
-    budget.updateBudget(newAmount, DateTime.now(), transaction.id);
 
-    // Check if the transaction is recurring
-    if (transaction.isRecurring) {
-      // If the transaction date is greater than now, skip budget update
-      if (transaction.date.isAfter(DateTime.now())) {
-        // Save the transaction without updating the budget
+    if (transaction.date.isAfter(DateTime.now())) {
+      // Show confirmation dialog to the user
+      bool? confirm = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Schedule Transaction'),
+            content: Text(
+                'Do you want to schedule this transaction or save it immediately ?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirm == true) {
+        // User confirmed scheduling
+        transaction.isAchieved = false;
         _transactionRepository.addTransaction(transaction);
         return;
+      } else {
+        // User chose to update immediately
+        transaction.isAchieved = true;
       }
     }
-
-    // Save the updated budget
+    budget.updateBudget(newAmount, DateTime.now(), transaction.id);
     await _budgetRespository.updateBudget(budget);
-    // Save the transaction
-    _transactionRepository.addTransaction(transaction);
 
     // Save the transaction
     _transactionRepository.addTransaction(transaction);
+  }
+
+  void confirmRecurringTransaction(Transaction txn) {
+    // Calculate next occurrence:
+    // Dart's DateTime handles month rollover automatically.
+    DateTime nextDate =
+        DateTime(txn.date.year, txn.date.month + 1, txn.date.day);
+
+    txn.date = nextDate;
+    txn.isAchieved = false;
+
+    Budget budget = _budgetRespository.getBudget()!;
+    double newAmount = budget.amount;
+    if (txn.type == 'income') {
+      newAmount += txn.amount;
+    } else if (txn.type == 'expense') {
+      newAmount -= txn.amount;
+    }
+    _transactionRepository.updateTransaction(txn);
+    budget.updateBudget(newAmount, DateTime.now(), txn.id);
   }
 
   // Get all transactions

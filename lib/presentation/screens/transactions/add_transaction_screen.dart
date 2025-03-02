@@ -46,8 +46,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         date: selectedDate,
         isRecurring: isRecurring,
         categoryId: selectedCategory,
+        isAchieved: !isRecurring,
         description: _descriptionController.text);
-    await AppServices.transactionService.addTransaction(transaction);
+    await AppServices.transactionService.addTransaction(context, transaction);
     if (widget.refresh != null) widget.refresh!();
     showSuccessDialog("Transaction added successfully.");
   }
@@ -157,7 +158,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ),
 
           Text(
-            "When this option is activated, a notification will be sent to the user every month to that date.",
+            "When this option is activated, transaction will be added every month to that date.",
             style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
 
