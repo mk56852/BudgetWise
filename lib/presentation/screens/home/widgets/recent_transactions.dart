@@ -27,7 +27,7 @@ class RecentTransactions extends StatelessWidget {
         );
       },
       child: Padding(
-        padding: EdgeInsets.only(top: 12),
+        padding: EdgeInsets.only(top: 18),
         child: Row(
           children: [
             Stack(
