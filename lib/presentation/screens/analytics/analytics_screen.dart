@@ -4,6 +4,7 @@ import 'package:budget_wise/core/constants/categories.dart'; // Importing catego
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
+import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -49,8 +50,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
         ),
         SizedBox(height: 16),
-        _generateTitle("General Informations"),
+        AppToggleButton(
+            equalSize: true,
+            items: ["Current Month", "Last Month"],
+            onSelected: (item) => print(item)),
         SizedBox(height: 16),
+
         Row(
           children: [
             Expanded(

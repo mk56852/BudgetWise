@@ -18,6 +18,8 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   intl: ^0.20.2
+  introduction_screen: ^3.1.17
+  lottie: ^3.2.0
   path_provider: ^2.1.5
   percent_indicator: ^4.2.4
   salomon_bottom_bar: ^3.3.2

@@ -10,6 +10,7 @@ import 'package:budget_wise/data/repositories/settings_repository.dart';
 import 'package:budget_wise/data/repositories/transaction_repository.dart';
 import 'package:budget_wise/data/repositories/user_repository.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
+import 'package:budget_wise/presentation/screens/introduction/into_screen.dart';
 import 'package:budget_wise/services/analytic_service.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:budget_wise/services/budget_service.dart';
@@ -96,12 +97,6 @@ void main() async {
   AppServices.expenseLimitService = ExpenseLimitService(
       expenseLimitRepository); // Add the ExpenseLimitService
 
-  Budget? budget = AppServices.budgetService.getBudget();
-  if (budget == null) {
-    AppServices.budgetService.addBudget(Budget(
-        id: generateId("Budget:"), amount: 0, lastUpdated: DateTime.now()));
-  }
-
   runApp(MyApp());
 }
 
@@ -116,7 +111,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainScreen(),
+      home: AppServices.budgetService.getBudget() != null
+          ? MainScreen()
+          : WelcomeScreen(),
     );
   }
 }

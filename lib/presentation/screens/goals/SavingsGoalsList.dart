@@ -1,5 +1,6 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/goal_progress.dart';
+import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/services/app_services.dart';
@@ -108,41 +109,45 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
           style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 18),
         ),
         // Filtering UI
-
-        Wrap(
-          spacing: 8.0,
-          children: ["All", "High", "Medium", "Low"].map((priority) {
-            bool isSelected = _selectedPriorityFilter == priority;
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isSelected ? Colors.white : AppColors.containerColor,
-                foregroundColor: isSelected ? Colors.black : Colors.white,
-                side: BorderSide(color: Colors.white),
-              ),
-              onPressed: () {
-                setState(() {
-                  _selectedPriorityFilter = priority;
-                });
-                _applyFilters();
-              },
-              child: Text(priority),
-            );
-          }).toList(),
-        ),
+        SizedBox(height: 16),
+        AppToggleButton(
+            equalSize: true,
+            items: ["All", "High", "Medium", "Low"],
+            onSelected: (item) {
+              setState(() {
+                _selectedPriorityFilter = item;
+              });
+              _applyFilters();
+            }),
 
         // Goals List
         _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _filteredGoals.isEmpty
                 ? Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: const Center(
-                        child: Text(
-                      "No savings goals found.",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  )
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 50),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.receipt_long,
+                              size: 80,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "No records yet",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ))
                 : Column(
                     children: List.generate(
                       _filteredGoals.length,

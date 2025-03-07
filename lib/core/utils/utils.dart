@@ -1,6 +1,21 @@
 import 'dart:math';
-
 import 'package:budget_wise/data/models/transaction.dart';
+
+// Function to return a list of currencies
+List<String> getCurrencyList() {
+  return [
+    'USD', // US Dollar
+    'EUR', // Euro
+    'JPY', // Japanese Yen
+    'GBP', // British Pound
+    'AUD', // Australian Dollar
+    'CAD', // Canadian Dollar
+    'CHF', // Swiss Franc
+    'CNY', // Chinese Yuan
+    'SEK', // Swedish Krona
+    'NZD', // New Zealand Dollar
+  ];
+}
 
 String generateId(String header) {
   final random = Random();
@@ -23,7 +38,7 @@ String generatePriorityMessage(int priority, int? dayLeft) {
     case 2:
       return "This is a High priority goal. ${generateDayLeftMessage(dayLeft)}";
     case 1:
-      return "This is a Meduim priority goal. ${generateDayLeftMessage(dayLeft)}";
+      return "This is a Medium priority goal. ${generateDayLeftMessage(dayLeft)}";
     default:
       return "This is a Low priority goal. ${generateDayLeftMessage(dayLeft)}";
   }
@@ -31,16 +46,17 @@ String generatePriorityMessage(int priority, int? dayLeft) {
 
 String generateDayLeftMessage(int? dayLeft) {
   if (dayLeft == null) {
-    return " Never give up ! Success is getting what you want";
+    return " Never give up! Success is getting what you want";
   }
   if (dayLeft > 30) {
-    return "We still have time more than month to achieve it";
-  } else if (dayLeft > 7)
+    return "We still have more than a month to achieve it";
+  } else if (dayLeft > 7) {
     return "We still have more than one week to achieve it";
-  else if (dayLeft > 0)
+  } else if (dayLeft > 0) {
     return "Need to achieve it as soon as possible";
-  else
+  } else {
     return "We passed the deadline";
+  }
 }
 
 int calculatePercentage(double firstValue, double secondValue) {

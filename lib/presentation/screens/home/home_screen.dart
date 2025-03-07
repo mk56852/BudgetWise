@@ -11,15 +11,35 @@ import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 //ignore: must_be_immutable
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   Function navigate;
   Budget currentBudget = AppServices.budgetService.getBudget()!;
   HomeScreen({super.key, required this.navigate});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Trigger the animation after the widget is built
+    Future.delayed(Duration(milliseconds: 100), () {
+      setState(() {
+        _visible = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,7 +58,7 @@ class HomeScreen extends StatelessWidget {
           text: "Recent Transactions",
           onTab: () => print("hello"),
         ),
-        TransactionsList(numberOfItems: 4, showAll: () => navigate(1)),
+        TransactionsList(numberOfItems: 4, showAll: () => widget.navigate(1)),
         SizedBox(
           height: 20,
         ),
@@ -49,7 +69,7 @@ class HomeScreen extends StatelessWidget {
         SizedBox(height: 12),
         SavingsGoalItems(
           numberOfItems: 4,
-          showAll: () => navigate(2),
+          showAll: () => widget.navigate(2),
         )
       ],
     );
@@ -95,13 +115,13 @@ class HomeScreen extends StatelessWidget {
             children: [
               Center(
                 child: Text(
-                  "DT",
+                  AppServices.userService.getCurrentUser()!.currency,
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               ),
               Center(
                 child: Text(
-                  "\$${currentBudget.amount}",
+                  "${widget.currentBudget.amount}",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 36,
