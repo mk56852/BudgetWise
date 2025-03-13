@@ -8,10 +8,10 @@ import 'package:budget_wise/presentation/screens/home/widgets/recent_transaction
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
+import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -47,9 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SizedBox(height: 5),
-        generateMenuIcons(),
-        SizedBox(height: 5),
         generateBudgetInfo(),
         SizedBox(height: 10),
         BudgetChart(),
@@ -82,27 +79,21 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           height: 50,
           width: 50,
-          decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.25),
-              borderRadius: BorderRadius.circular(10)),
           child: Icon(
             Icons.menu,
             color: Colors.white,
-            size: 25,
+            size: 30,
           ),
         ),
         Container(
           height: 50,
           width: 50,
-          decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.25),
-              borderRadius: BorderRadius.circular(10)),
           child: Icon(
             Icons.grid_view_rounded,
             color: Colors.white,
-            size: 25,
+            size: 30,
           ),
-        ),
+        )
       ],
     );
   }
@@ -111,59 +102,74 @@ class _HomeScreenState extends State<HomeScreen> {
     return ValueListenableBuilder(
         valueListenable: AppServices.budgetService.budgetBoxListenable,
         builder: (context, Box<Budget> box, _) {
-          return Column(
-            children: [
-              Center(
-                child: Text(
-                  AppServices.userService.getCurrentUser()!.currency,
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+          return AppContainer(
+            child: Column(
+              children: [
+                generateMenuIcons(),
+                SizedBox(
+                  height: 5,
                 ),
-              ),
-              Center(
-                child: Text(
-                  "${widget.currentBudget.amount}",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${widget.currentBudget.amount}",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 37,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 7,
+                      ),
+                      Text(
+                        AppServices.userService.getCurrentUser()!.currency,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Center(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade700.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    " You Current Available Budget ",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                Center(
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      " You Current Available Budget ",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                      child: AppActionButton(
-                    text: "Add Money",
-                    icon: Icons.add,
-                    onTab: () => addMoney(context),
-                  )),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                      child: AppActionButton(
-                          text: "Delete Money",
-                          icon: Icons.delete,
-                          onTab: () => removeMoney(context))),
-                ],
-              ),
-            ],
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      child: AppIconButton(
+                          icon: Icons.download,
+                          onTap: () => addMoney(context),
+                          text: "Deposit"),
+                    ),
+                    Expanded(
+                      child: AppIconButton(
+                          icon: Icons.upload,
+                          onTap: () => removeMoney(context),
+                          text: "Withdraw"),
+                    ),
+                    Expanded(
+                      child: AppIconButton(
+                          icon: Icons.savings,
+                          onTap: () => widget.navigate(2),
+                          text: "Save for goal"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           );
         });
   }
