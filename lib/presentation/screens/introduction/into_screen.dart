@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/utils/utils.dart';
+import 'package:budget_wise/data/models/analytics.dart';
 import 'package:budget_wise/data/models/budget.dart';
 import 'package:budget_wise/data/models/user.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
@@ -130,6 +131,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             amount: double.parse(budgetController.text),
             lastUpdated: DateTime.now());
         AppServices.budgetService.addBudget(currentBudget);
+        DateTime time = DateTime.now();
+        AppServices.analyticsService.addAnalytics(Analytics(
+            id: generateId("Analytics:"),
+            month: time.month,
+            year: time.year,
+            incomeTotal: 0,
+            expenseTotal: 0,
+            totalBudget: 0,
+            savedForGoal: 0));
         AppServices.userService.addUser(newUser).then((_) {
           // Show Lottie animation
           showDialog(

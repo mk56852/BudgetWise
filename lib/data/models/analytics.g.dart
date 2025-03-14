@@ -22,8 +22,8 @@ class AnalyticsAdapter extends TypeAdapter<Analytics> {
       year: fields[2] as int,
       incomeTotal: fields[3] as double,
       expenseTotal: fields[4] as double,
-      highestExpenseCategory: fields[5] as String,
-      savingsRate: fields[6] as double,
+      totalBudget: fields[5] as double,
+      savedForGoal: fields[6] as double,
     );
   }
 
@@ -42,9 +42,9 @@ class AnalyticsAdapter extends TypeAdapter<Analytics> {
       ..writeByte(4)
       ..write(obj.expenseTotal)
       ..writeByte(5)
-      ..write(obj.highestExpenseCategory)
+      ..write(obj.totalBudget)
       ..writeByte(6)
-      ..write(obj.savingsRate);
+      ..write(obj.savedForGoal);
   }
 
   @override

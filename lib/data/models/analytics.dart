@@ -13,16 +13,16 @@ class Analytics {
   final int year;
 
   @HiveField(3)
-  final double incomeTotal;
+  double incomeTotal;
 
   @HiveField(4)
-  final double expenseTotal;
+  double expenseTotal;
 
   @HiveField(5)
-  final String highestExpenseCategory;
+  double totalBudget;
 
   @HiveField(6)
-  final double savingsRate;
+  double savedForGoal;
 
   Analytics({
     required this.id,
@@ -30,7 +30,7 @@ class Analytics {
     required this.year,
     required this.incomeTotal,
     required this.expenseTotal,
-    required this.highestExpenseCategory,
-    required this.savingsRate,
+    required this.totalBudget,
+    required this.savedForGoal,
   });
 }

@@ -1,3 +1,5 @@
+import 'package:budget_wise/services/app_services.dart';
+
 import '../data/models/analytics.dart';
 import '../data/repositories/analytics_repository.dart';
 
@@ -12,8 +14,8 @@ class AnalyticsService {
   }
 
   // Get analytics data by ID
-  Analytics? getAnalytics(String id) {
-    return _analyticsRepository.getAnalytics(id);
+  Analytics? getCurrentMonthAnalytics() {
+    return _analyticsRepository.getCurrentAnalytics();
   }
 
   // Update analytics data
@@ -26,8 +28,22 @@ class AnalyticsService {
     await _analyticsRepository.deleteAnalytics(id);
   }
 
-  // Get all analytics data
-  List<Analytics> getAllAnalytics() {
-    return _analyticsRepository.getAllAnalytics();
+  void fixAnalytics() {
+    DateTime today = DateTime.now();
+    Analytics analytics = getCurrentMonthAnalytics()!;
+    if (analytics.month != today.month) {
+      double budgetAmount = AppServices.budgetService.getBudget()!.amount;
+      double totalSaves = AppServices.savingsGoalService.getAllSavedAmount();
+      double totalExpense = AppServices.transactionService
+          .calculateTotalExpensesByMonth(analytics.year, analytics.month);
+      double totalIncome = AppServices.transactionService
+          .calculateTotalIncomeByMonth(analytics.year, analytics.month);
+
+      analytics.incomeTotal = totalIncome;
+      analytics.totalBudget = budgetAmount;
+      analytics.expenseTotal = totalExpense;
+      analytics.savedForGoal = totalSaves;
+      updateAnalytics(analytics);
+    }
   }
 }

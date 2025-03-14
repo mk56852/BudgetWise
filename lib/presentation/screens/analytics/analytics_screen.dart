@@ -1,8 +1,8 @@
 import 'package:budget_wise/core/constants/Colors.dart';
-import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
+import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
 import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
@@ -18,23 +18,38 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
+  String month = "current";
+
+  void switchAnalytics() {
+    setState(() {
+      month = month == "current" ? "previous" : "current";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime today = DateTime.now();
-    double budgetAmount = AppServices.budgetService.getBudget()!.amount;
-    double totalSaves = AppServices.savingsGoalService.getAllSavedAmount();
-    int budgetPercent = calculatePercentage(budgetAmount, totalSaves);
-    int savesPercent = calculatePercentage(totalSaves, budgetAmount);
+    double budgetAmount = month == "current"
+        ? AppServices.budgetService.getBudget()!.amount
+        : AppServices.analyticsService.getCurrentMonthAnalytics()!.totalBudget;
+    double totalSaves = month == "current"
+        ? AppServices.savingsGoalService.getAllSavedAmount()
+        : AppServices.analyticsService.getCurrentMonthAnalytics()!.savedForGoal;
+
     int goalsNumber =
         AppServices.savingsGoalService.getAllSavingsGoals().length;
     int achievedGoal = AppServices.savingsGoalService
         .getAllSavingsGoals()
         .where((goal) => goal.isAchieved)
         .length;
-    double totalExpense = AppServices.transactionService
-        .calculateTotalExpensesByMonth(today.year, today.month);
-    double totalIncome = AppServices.transactionService
-        .calculateTotalIncomeByMonth(today.year, today.month);
+    double totalExpense = month == "current"
+        ? AppServices.transactionService
+            .calculateTotalExpensesByMonth(today.year, today.month)
+        : AppServices.analyticsService.getCurrentMonthAnalytics()!.expenseTotal;
+    double totalIncome = month == "current"
+        ? AppServices.transactionService
+            .calculateTotalIncomeByMonth(today.year, today.month)
+        : AppServices.analyticsService.getCurrentMonthAnalytics()!.incomeTotal;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +68,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         AppToggleButton(
             equalSize: true,
             items: ["Current Month", "Last Month"],
-            onSelected: (item) => print(item)),
+            onSelected: (item) => switchAnalytics()),
         SizedBox(height: 16),
 
         Row(
@@ -75,7 +90,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     isPositive: true))
           ],
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 5),
         Row(
           children: [
             Expanded(
@@ -95,11 +110,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     isPositive: true))
           ],
         ),
-        SizedBox(height: 16),
-        _generateTitle("Your Budget"),
-        SizedBox(height: 16),
-        _buildBudgetInfo(budgetPercent, budgetAmount, savesPercent, totalSaves),
-        SizedBox(height: 16),
+        SizedBox(height: 5),
+
+        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
+
+        SizedBox(height: 5),
         _generateTitle("Expenses by Category"),
         SizedBox(height: 16),
         SpendingBarChart(),
@@ -217,78 +232,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold));
   }
 
-  Widget _buildBudgetInfo(int bPer, double bVal, int sPer, double sVal) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 5,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: PieChart(
-                PieChartData(
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 50,
-                  sections: [
-                    PieChartSectionData(
-                      color: Colors.white70,
-                      value: bPer.toDouble(),
-                      title: "$bPer %",
-                      radius: 40,
-                      titleStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                      ),
-                    ),
-                    PieChartSectionData(
-                      color: Colors.blueAccent.withOpacity(0.1),
-                      value: sPer.toDouble(),
-                      title: "$sPer %",
-                      radius: 50,
-                      titleStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 5,
-          ),
-          Flexible(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _generateInfoItem(
-                  "Available Budget",
-                  "$bVal DT",
-                  Colors.blueAccent.withOpacity(0.1),
-                ),
-                _generateInfoItem(
-                    "Saved For Goals", "${sVal}DT", Colors.white70),
-                _generateInfoItem(
-                    "Total Budget", "${sVal + bVal} DT", Colors.transparent),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   Widget _generateInfoItem(String text, String body, Color cColor) {
     return Column(
       children: [
@@ -394,6 +337,106 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class BudgetWidget extends StatelessWidget {
+  final double availableBudget;
+  final double savedForGoals;
+
+  const BudgetWidget({
+    Key? key,
+    required this.availableBudget,
+    required this.savedForGoals,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double totalBudget = availableBudget + savedForGoals;
+
+    return AppContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            "Total Budget",
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "\$${totalBudget.toStringAsFixed(2)}",
+            style: const TextStyle(
+                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 16),
+
+          // Pie Chart with Animation
+          SizedBox(
+            height: 180,
+            child: PieChart(
+              PieChartData(
+                sections: _buildChartSections(),
+                borderData: FlBorderData(show: false),
+                centerSpaceRadius: 50,
+                sectionsSpace: 2,
+                // Animation properties
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Budget Details
+          _buildLegend("Available Budget", Colors.blue, availableBudget),
+          _buildLegend("Saved for Goals", Colors.green, savedForGoals),
+        ],
+      ),
+    );
+  }
+
+  List<PieChartSectionData> _buildChartSections() {
+    return [
+      PieChartSectionData(
+        color: Colors.blue,
+        value: availableBudget,
+        title:
+            "${(availableBudget / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
+        radius: 50,
+        titleStyle: const TextStyle(
+            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      PieChartSectionData(
+        color: Colors.green,
+        value: savedForGoals,
+        title:
+            "${(savedForGoals / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
+        radius: 50,
+        titleStyle: const TextStyle(
+            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+    ];
+  }
+
+  Widget _buildLegend(String label, Color color, double amount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "$label: \$${amount.toStringAsFixed(2)}",
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

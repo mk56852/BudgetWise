@@ -8,8 +8,9 @@ class AnalyticsRepository {
     await _analyticsBox.put(analytics.id, analytics);
   }
 
-  Analytics? getAnalytics(String id) {
-    return _analyticsBox.get(id);
+  Analytics? getCurrentAnalytics() {
+    List<Analytics> allAnalytics = getAllAnalytics();
+    return allAnalytics[0];
   }
 
   Future<void> updateAnalytics(Analytics analytics) async {
