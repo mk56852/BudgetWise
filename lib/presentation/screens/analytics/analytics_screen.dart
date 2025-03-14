@@ -1,5 +1,6 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
+import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
@@ -91,6 +92,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ],
         ),
         SizedBox(height: 5),
+
+        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
+        SizedBox(height: 5),
         Row(
           children: [
             Expanded(
@@ -110,18 +114,32 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     isPositive: true))
           ],
         ),
-        SizedBox(height: 5),
+        SizedBox(
+          height: 5,
+        ),
+        SavingsGoalsProgress(),
+        SizedBox(height: 10),
+        AppContainer(
+          child: Column(
+            children: [
+              _generateTitle("Expenses by Category"),
+              SizedBox(height: 16),
+              SpendingBarChart(),
+            ],
+          ),
+        ),
 
-        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
+        SizedBox(height: 10),
+        AppContainer(
+          child: Column(
+            children: [
+              _generateTitle("Incomes by Category"),
+              SizedBox(height: 16),
+              IncomesBarChart(),
+            ],
+          ),
+        ),
 
-        SizedBox(height: 5),
-        _generateTitle("Expenses by Category"),
-        SizedBox(height: 16),
-        SpendingBarChart(),
-        SizedBox(height: 16),
-        _generateTitle("Incomes by Category"),
-        SizedBox(height: 16),
-        IncomesBarChart(),
         SizedBox(height: 16),
         _generateTitle("Your Monthly Expense Limit"),
         SizedBox(height: 16),
@@ -227,9 +245,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _generateTitle(String title) {
-    return Text(title,
-        style: const TextStyle(
-            color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold));
+    return Center(
+      child: Text(title,
+          style: const TextStyle(
+              color: Colors.white60,
+              fontSize: 16,
+              fontWeight: FontWeight.bold)),
+    );
   }
 
   Widget _generateInfoItem(String text, String body, Color cColor) {
@@ -363,7 +385,9 @@ class BudgetWidget extends StatelessWidget {
           const Text(
             "Total Budget",
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color.fromRGBO(220, 220, 220, 1)),
           ),
           const SizedBox(height: 4),
           Text(
@@ -390,7 +414,7 @@ class BudgetWidget extends StatelessWidget {
 
           // Budget Details
           _buildLegend("Available Budget", Colors.blue, availableBudget),
-          _buildLegend("Saved for Goals", Colors.green, savedForGoals),
+          _buildLegend("Saved for Goals", Colors.white, savedForGoals),
         ],
       ),
     );
@@ -408,13 +432,13 @@ class BudgetWidget extends StatelessWidget {
             fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
       ),
       PieChartSectionData(
-        color: Colors.green,
+        color: Colors.white,
         value: savedForGoals,
         title:
             "${(savedForGoals / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
         radius: 50,
         titleStyle: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     ];
   }
@@ -435,6 +459,55 @@ class BudgetWidget extends StatelessWidget {
             "$label: \$${amount.toStringAsFixed(2)}",
             style: const TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SavingsGoalsProgress extends StatelessWidget {
+  const SavingsGoalsProgress({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<SavingsGoal> goals =
+        AppServices.savingsGoalService.getAllSavingsGoals();
+    double totalSaved = goals.fold(0, (sum, goal) => sum + goal.savedAmount);
+    double totalTarget = goals.fold(0, (sum, goal) => sum + goal.targetAmount);
+    double overallProgress =
+        totalTarget > 0 ? (totalSaved / totalTarget).clamp(0.0, 1.0) : 0.0;
+
+    return AppContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Total Savings Progress",
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "\$${totalSaved.toStringAsFixed(2)} saved of \$${totalTarget.toStringAsFixed(2)}",
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: overallProgress,
+              backgroundColor: Colors.grey.withOpacity(0.2),
+              color: Colors.white,
+              minHeight: 10,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "${(overallProgress * 100).toStringAsFixed(1)}% completed",
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),

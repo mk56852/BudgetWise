@@ -22,79 +22,81 @@ class IncomesBarChart extends StatelessWidget {
     Map<String, double> items =
         AppServices.transactionService.getTotalIncomesForCategories();
 
-    return Column(
-      children: [
-        AspectRatio(
-          aspectRatio: 1.5,
-          child: BarChart(
-            BarChartData(
-              backgroundColor: Colors.white.withOpacity(0.05),
-              barGroups: List.generate(incomeSources.length, (index) {
-                return BarChartGroupData(
-                  x: index,
-                  barRods: [
-                    BarChartRodData(
-                      toY: items[incomeSources[index]] ?? 0,
-                      color: Colors.white70,
-                      width: 18,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ],
-                );
-              }),
-              titlesData: FlTitlesData(
-                leftTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        "\$${value.toInt()}",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12),
-                      );
-                    },
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= 0 &&
-                          value.toInt() < incomeSources.length) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            shortNames[value.toInt()], // Using short names
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
-                          ),
+    return Center(
+      // Centering the widget
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: BarChart(
+              BarChartData(
+                barGroups: List.generate(incomeSources.length, (index) {
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: items[incomeSources[index]] ?? 0,
+                        color: Colors.white, // Updated bar color
+                        width: 12,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  );
+                }),
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          "\$${value.toInt()}",
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
                         );
-                      }
-                      return const SizedBox.shrink();
-                    },
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < incomeSources.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              shortNames[value.toInt()], // Using short names
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ),
                 ),
-              ),
-              borderData: FlBorderData(show: false),
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                getDrawingHorizontalLine: (value) {
-                  return FlLine(color: Colors.white24, strokeWidth: 1);
-                },
+                borderData: FlBorderData(show: false),
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(color: Colors.white70, strokeWidth: 0.2);
+                  },
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        CategoryLegend(),
-      ],
+          const SizedBox(height: 8),
+          CategoryLegend(),
+        ],
+      ),
     );
   }
 }

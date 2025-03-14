@@ -29,15 +29,14 @@ class SpendingBarChart extends StatelessWidget {
           aspectRatio: 1.5,
           child: BarChart(
             BarChartData(
-              backgroundColor: Colors.white.withOpacity(0.05),
               barGroups: List.generate(AppCategories.length, (index) {
                 return BarChartGroupData(
                   x: index,
                   barRods: [
                     BarChartRodData(
                       toY: items[AppCategories[index]] ?? 0,
-                      color: Colors.white70,
-                      width: 18,
+                      color: Colors.white,
+                      width: 12,
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ],
@@ -87,7 +86,7 @@ class SpendingBarChart extends StatelessWidget {
               gridData: FlGridData(
                 drawVerticalLine: false,
                 getDrawingHorizontalLine: (value) {
-                  return FlLine(color: Colors.white24, strokeWidth: 1);
+                  return FlLine(color: Colors.white70, strokeWidth: 0.2);
                 },
               ),
             ),
