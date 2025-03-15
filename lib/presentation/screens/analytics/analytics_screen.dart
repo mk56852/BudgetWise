@@ -3,10 +3,12 @@ import 'package:budget_wise/core/constants/categories.dart'; // Importing catego
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
+import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
 import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
+import 'package:budget_wise/services/pdf_exporter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_wise/data/models/expense_limit.dart'; // Importing ExpenseLimit
@@ -25,6 +27,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     setState(() {
       month = month == "current" ? "previous" : "current";
     });
+  }
+
+  void exportCurrentMonthData() async {
+    List<Map<String, dynamic>> sampleData = [
+      {"Category": "Food", "Amount": 200.0},
+      {"Category": "Transport", "Amount": 150.0},
+      {"Category": "Entertainment", "Amount": 100.0},
+    ];
+    print("helo");
+    await PdfExporter.exportToPdf("Monthly Report", sampleData);
   }
 
   @override
@@ -71,7 +83,26 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             items: ["Current Month", "Last Month"],
             onSelected: (item) => switchAnalytics()),
         SizedBox(height: 16),
-
+        Row(
+          children: [
+            Expanded(
+              child: AppIconButton(
+                  text: "Export month analytics",
+                  icon: Icons.download,
+                  onTap: exportCurrentMonthData),
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: AppIconButton(
+                  text: "Customized export",
+                  icon: Icons.calendar_month,
+                  onTap: exportCurrentMonthData),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 15,
+        ),
         Row(
           children: [
             Expanded(

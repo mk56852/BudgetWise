@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   build_runner: ^2.4.13
+  file_picker: ^9.1.0
   fl_chart: ^0.69.0
   flutter:
     sdk: flutter
@@ -21,6 +22,7 @@ dependencies:
   introduction_screen: ^3.1.17
   lottie: ^3.2.0
   path_provider: ^2.1.5
+  pdf: ^3.11.3
   percent_indicator: ^4.2.4
   salomon_bottom_bar: ^3.3.2
   timezone: ^0.10.0
@@ -41,3 +43,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/fonts/Roboto-Regular.ttf
