@@ -20,8 +20,8 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 160,
-      height: 180,
-      padding: const EdgeInsets.all(12),
+      height: 155,
+      padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 2),
       decoration: BoxDecoration(
         color: AppColors.containerColor,
         borderRadius: BorderRadius.circular(16),
@@ -71,7 +71,7 @@ class InfoCard extends StatelessWidget {
           ),
           const Spacer(),
           CustomPaint(
-            size: const Size(140, 50),
+            size: const Size(140, 40),
             painter: CryptoGraphPainter(graphColor: graphColor),
           ),
         ],

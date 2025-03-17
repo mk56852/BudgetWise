@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
+
+import 'package:permission_handler/permission_handler.dart';
 
 class PdfExporter {
   static Future<void> exportToPdf(
@@ -37,9 +39,25 @@ class PdfExporter {
     );
 
     // Save the PDF
+    bool status = await requestStoragePermission();
+    if (status) {
+      String? selectedFolder = await FilePicker.platform.getDirectoryPath();
+      if (selectedFolder != null) {
+        final file = File(selectedFolder + "/report.pdf");
+        await file.writeAsBytes(await pdf.save());
+      }
+    }
+  }
 
-    final output = await getExternalStorageDirectory();
-    final file = File("${output!.path}/report.pdf");
-    await file.writeAsBytes(await pdf.save());
+  static Future<bool> requestStoragePermission() async {
+    var status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      return true;
+    } else if (status.isPermanentlyDenied) {
+      return await openAppSettings();
+    } else {
+      return false;
+    }
   }
 }

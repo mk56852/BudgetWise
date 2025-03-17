@@ -33,12 +33,57 @@ class BudgetService {
     return budget.history;
   }
 
-  List<BudgetHistoryEntry> getCurrentMonthBudgetHistory(Budget budget) {
+  List<BudgetHistoryEntry> getCurrentMonthBudgetHistory() {
+    Budget budget = getBudget()!;
     final now = DateTime.now();
     return budget.history
         .where((entry) =>
             entry.updatedAt.month == now.month &&
             entry.updatedAt.year == now.year)
         .toList();
+  }
+
+  List<BudgetHistoryEntry> getBudgetHistoryForMonth(
+      Budget budget, int month, int year) {
+    return budget.history
+        .where((entry) =>
+            entry.updatedAt.month == month && entry.updatedAt.year == year)
+        .toList();
+  }
+
+  BudgetHistoryEntry? getFirstBudgetHistoryForMonth(int month, int year) {
+    if (month == 1) {
+      month = 12;
+      year = year - 1;
+    } else {
+      month = month - 1;
+    }
+    Budget budget = getBudget()!;
+    return budget.history
+        .where((entry) =>
+            entry.updatedAt.month == month && entry.updatedAt.year == year)
+        .toList()
+        .fold<BudgetHistoryEntry?>(null, (prev, curr) {
+      return (prev == null || curr.updatedAt.isAfter(prev.updatedAt))
+          ? curr
+          : prev;
+    });
+  }
+
+  List<BudgetHistoryEntry> getLatestBudgetHistoryPerDay(
+      List<BudgetHistoryEntry> historyList) {
+    Map<String, BudgetHistoryEntry> latestEntries = {};
+
+    for (var entry in historyList) {
+      String dateKey =
+          "${entry.updatedAt.year}-${entry.updatedAt.month}-${entry.updatedAt.day}";
+
+      if (!latestEntries.containsKey(dateKey) ||
+          entry.updatedAt.isAfter(latestEntries[dateKey]!.updatedAt)) {
+        latestEntries[dateKey] = entry;
+      }
+    }
+
+    return latestEntries.values.toList();
   }
 }

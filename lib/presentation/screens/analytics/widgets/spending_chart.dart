@@ -47,19 +47,8 @@ class SpendingBarChart extends StatelessWidget {
                     const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 topTitles:
                     const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        "\$${value.toInt()}",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12),
-                      );
-                    },
-                  ),
-                ),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,

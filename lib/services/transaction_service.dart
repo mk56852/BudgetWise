@@ -90,7 +90,42 @@ class TransactionService {
     budget.updateBudget(newAmount, DateTime.now(), txn.id);
   }
 
-  // Get all transactions with optional filters
+  // Get expenses for a specific month and year
+  List<Transaction> getExpensesFromMonthYear(int year, int month) {
+    DateTime startDate = DateTime(year, month, 1);
+    DateTime currentDate = DateTime.now();
+
+    // Fetch all transactions
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    // Filter for expenses within the date range
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
+            transaction.date.isBefore(currentDate) &&
+            transaction.type == 'expense')
+        .toList();
+  }
+
+  // Get incomes for a specific month and year
+  List<Transaction> getIncomesFromMonthYear(int year, int month) {
+    DateTime startDate = DateTime(year, month, 1);
+    DateTime currentDate = DateTime.now();
+
+    // Fetch all transactions
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    // Filter for incomes within the date range
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
+            transaction.date.isBefore(currentDate) &&
+            transaction.type == 'income')
+        .toList();
+  }
+
   List<Transaction> getAllTransactionsWithFilter(
       {bool? isRecurring, String? achievementStatus}) {
     List<Transaction> transactions =

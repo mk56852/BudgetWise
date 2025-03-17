@@ -2,8 +2,9 @@ import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
+import 'package:budget_wise/presentation/screens/analytics/widgets/budget_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
-import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
+import 'package:budget_wise/presentation/screens/analytics/widgets/tranasction_chart.dart';
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
 import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
@@ -11,7 +12,8 @@ import 'package:budget_wise/services/app_services.dart';
 import 'package:budget_wise/services/pdf_exporter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:budget_wise/data/models/expense_limit.dart'; // Importing ExpenseLimit
+import 'package:budget_wise/data/models/expense_limit.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // Importing ExpenseLimit
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -35,7 +37,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       {"Category": "Transport", "Amount": 150.0},
       {"Category": "Entertainment", "Amount": 100.0},
     ];
-    print("helo");
+
     await PdfExporter.exportToPdf("Monthly Report", sampleData);
   }
 
@@ -71,7 +73,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           child: Text(
             "Analytics",
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -83,71 +85,99 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             items: ["Current Month", "Last Month"],
             onSelected: (item) => switchAnalytics()),
         SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: AppIconButton(
-                  text: "Export month analytics",
-                  icon: Icons.download,
-                  onTap: exportCurrentMonthData),
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              child: AppIconButton(
-                  text: "Customized export",
-                  icon: Icons.calendar_month,
-                  onTap: exportCurrentMonthData),
+        Animate(
+          effects: [
+            FadeEffect(duration: 400.ms),
+            SlideEffect(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+              duration: 400.ms,
+              curve: Curves.easeOut,
             ),
           ],
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        Row(
-          children: [
+          onPlay: (controller) => controller.forward(),
+          delay: (200).ms,
+          child: Row(children: [
             Expanded(
                 child: InfoCard(
-                    title: "Expenses",
-                    subTitle: "Total expense",
-                    body: "$totalExpense DT",
-                    graphColor: Colors.blue.withOpacity(0.5),
-                    isPositive: false)),
+              title: "Expenses",
+              subTitle: "Total expense",
+              body: "$totalExpense DT",
+              graphColor: Colors.blue.withOpacity(0.5),
+              isPositive: false,
+            )),
             SizedBox(width: 6),
             Expanded(
                 child: InfoCard(
-                    title: "Incomes",
-                    subTitle: "Total incomes",
-                    body: "$totalIncome DT",
-                    graphColor: Colors.blue.withOpacity(0.5),
-                    isPositive: true))
-          ],
-        ),
-        SizedBox(height: 5),
-
-        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
-        SizedBox(height: 5),
-        Row(
-          children: [
-            Expanded(
-                child: InfoCard(
-                    title: "Savings Goal",
-                    subTitle: "Total Savings goal",
-                    body: goalsNumber.toString() + " Goals",
-                    graphColor: Colors.blue.withOpacity(0.5),
-                    isPositive: true)),
-            SizedBox(width: 6),
-            Expanded(
-                child: InfoCard(
-                    title: "Achieved Goals",
-                    subTitle: "Total achieved goal",
-                    body: achievedGoal.toString() + " Goals",
-                    graphColor: Colors.blue.withOpacity(0.5),
-                    isPositive: true))
-          ],
+              title: "Incomes",
+              subTitle: "Total incomes",
+              body: "$totalIncome DT",
+              graphColor: Colors.blue.withOpacity(0.5),
+              isPositive: true,
+            )),
+          ]),
         ),
         SizedBox(
           height: 5,
         ),
+        Animate(
+            effects: [
+              FadeEffect(duration: 400.ms),
+              SlideEffect(
+                begin: const Offset(0, 0.2),
+                end: Offset.zero,
+                duration: 300.ms,
+                curve: Curves.easeOut,
+              ),
+            ],
+            onPlay: (controller) => controller.forward(),
+            delay: (300).ms,
+            child: Row(
+              children: [
+                Expanded(
+                    child: InfoCard(
+                        title: "Savings Goal",
+                        subTitle: "Total Savings goal",
+                        body: goalsNumber.toString() + " Goals",
+                        graphColor: Colors.blue.withOpacity(0.5),
+                        isPositive: true)),
+                SizedBox(width: 6),
+                Expanded(
+                    child: InfoCard(
+                        title: "Achieved Goals",
+                        subTitle: "Total achieved goal",
+                        body: achievedGoal.toString() + " Goals",
+                        graphColor: Colors.blue.withOpacity(0.5),
+                        isPositive: true))
+              ],
+            )),
+        SizedBox(
+          height: 5,
+        ),
+
+        Animate(
+            effects: [
+              FadeEffect(duration: 400.ms),
+              SlideEffect(
+                begin: const Offset(0, 0.2),
+                end: Offset.zero,
+                duration: 400.ms,
+                curve: Curves.easeOut,
+              ),
+            ],
+            onPlay: (controller) => controller.forward(),
+            delay: (400).ms,
+            child: AppContainer(
+                child: Column(
+              children: [
+                _generateTitle("Budget progress per month"),
+                BudgetChart(),
+              ],
+            ))),
+        SizedBox(height: 5),
+        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
+        SizedBox(height: 5),
+
         SavingsGoalsProgress(),
         SizedBox(height: 10),
         AppContainer(
@@ -279,9 +309,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Center(
       child: Text(title,
           style: const TextStyle(
-              color: Colors.white60,
-              fontSize: 16,
-              fontWeight: FontWeight.bold)),
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -430,7 +458,7 @@ class BudgetWidget extends StatelessWidget {
 
           // Pie Chart with Animation
           SizedBox(
-            height: 180,
+            height: 190,
             child: PieChart(
               PieChartData(
                 sections: _buildChartSections(),
@@ -467,7 +495,7 @@ class BudgetWidget extends StatelessWidget {
         value: savedForGoals,
         title:
             "${(savedForGoals / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
-        radius: 50,
+        radius: 60,
         titleStyle: const TextStyle(
             fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
       ),

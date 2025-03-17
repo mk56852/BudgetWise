@@ -1,8 +1,11 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/presentation/screens/analytics/analytics_screen.dart';
 import 'package:budget_wise/presentation/screens/goals/SavingsGoalsList.dart';
+import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
 import 'package:budget_wise/presentation/screens/home/home_screen.dart';
+import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/transactions_screen.dart';
+import 'package:fab_circular_menu_plus/fab_circular_menu_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -40,6 +43,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _advancedDrawerController = AdvancedDrawerController();
   int _currentIndex = 0;
+
+  List<Widget?> get _floatingButton => [
+        null,
+        _generate_transaction_floating_button(),
+        _generate_transaction_floating_button(),
+        _generate_analytics_floating_button()
+      ];
 
   List<Widget> get _screens => [
         HomeScreen(navigate: updateScreen),
@@ -92,40 +102,136 @@ class _MainScreenState extends State<MainScreen> {
       ),
       drawer: _generateDrawer(),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Container(
-          alignment: Alignment.topLeft,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.darkBlueColor,
-                Colors.black,
-              ],
+          backgroundColor: Colors.transparent,
+          body: Container(
+            alignment: Alignment.topLeft,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.darkBlueColor,
+                  Colors.black,
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+                child: SingleChildScrollView(child: _screens[_currentIndex]),
+              ),
             ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-              child: SingleChildScrollView(child: _screens[_currentIndex]),
-            ),
-          ),
-        ),
-        bottomNavigationBar: SalomonBottomBar(
-          currentIndex: _currentIndex,
+          bottomNavigationBar: SalomonBottomBar(
+            currentIndex: _currentIndex,
 
-          onTap: (index) {
-            updateScreen(index);
-          },
-          items: bottomNavItems,
-          selectedItemColor: Colors.white, // Primary color
-          unselectedItemColor:
-              Colors.white.withOpacity(0.8), // Unselected color
-          backgroundColor: Colors.black, // Dark background
-        ),
-      ),
+            onTap: (index) {
+              updateScreen(index);
+            },
+            items: bottomNavItems,
+            selectedItemColor: Colors.white, // Primary color
+            unselectedItemColor:
+                Colors.white.withOpacity(0.8), // Unselected color
+            backgroundColor: Colors.black, // Dark background
+          ),
+          floatingActionButton: _floatingButton[_currentIndex]),
+    );
+  }
+
+  Widget _generate_transaction_floating_button() {
+    return LayoutBuilder(
+      builder: (context, constraints) => FabCircularMenuPlus(
+          fabColor: Colors.blueAccent.withOpacity(0.9),
+          fabChild: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          ringColor: Colors.blue.withOpacity(1),
+          ringWidth: constraints.maxWidth * 0.22,
+          ringDiameter: constraints.maxWidth * 0.9,
+          children: <Widget>[
+            InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddTransactionScreen())),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Add",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text("tranasction", style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+            InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddSavingsGoalScreen())),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Add",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text("saving goal", style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+          ]),
+    );
+  }
+
+  Widget _generate_analytics_floating_button() {
+    return LayoutBuilder(
+      builder: (context, constraints) => FabCircularMenuPlus(
+          fabColor: Colors.blueAccent.withOpacity(0.9),
+          fabChild: Icon(
+            Icons.download,
+            color: Colors.white,
+          ),
+          ringColor: Colors.blue.withOpacity(1),
+          ringWidth: constraints.maxWidth * 0.22,
+          ringDiameter: constraints.maxWidth * 0.9,
+          children: <Widget>[
+            InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddTransactionScreen())),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "generate this",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text("month pdf", style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+            InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddSavingsGoalScreen())),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "generate",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text("custom pdf", style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+          ]),
     );
   }
 
@@ -212,26 +318,26 @@ class MainContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Container(
-          alignment: Alignment.topLeft,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerRight,
-              end: Alignment.centerLeft,
-              colors: [
-                AppColors.darkBlueColor,
-                Colors.black,
-              ],
-            ),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        alignment: Alignment.topLeft,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerRight,
+            end: Alignment.centerLeft,
+            colors: [
+              AppColors.darkBlueColor,
+              Colors.black,
+            ],
           ),
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-              child: SingleChildScrollView(child: child),
-            ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+            child: SingleChildScrollView(child: child),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

@@ -96,7 +96,9 @@ void main() async {
   AppServices.settingsService = SettingsService(settingsRepository);
   AppServices.expenseLimitService = ExpenseLimitService(
       expenseLimitRepository); // Add the ExpenseLimitService
-  AppServices.analyticsService.fixAnalytics();
+  if (AppServices.budgetService.getBudget() != null) {
+    AppServices.analyticsService.fixAnalytics();
+  }
   runApp(MyApp());
 }
 
