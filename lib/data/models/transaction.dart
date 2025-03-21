@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 part 'transaction.g.dart';
 
 @HiveType(typeId: 3)
@@ -36,4 +37,15 @@ class Transaction {
       this.description,
       this.isRecurring = false,
       this.isAchieved = false});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type,
+      'amount': amount,
+      'categoryId': categoryId,
+      'date': DateFormat.yMd().format(date),
+      'description': description,
+    };
+  }
 }

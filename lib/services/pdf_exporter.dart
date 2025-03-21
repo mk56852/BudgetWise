@@ -1,49 +1,235 @@
 import 'dart:io';
+import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/widgets.dart' as pw;
-
 import 'package:permission_handler/permission_handler.dart';
 
 class PdfExporter {
   static Future<void> exportToPdf(
-      String title, List<Map<String, dynamic>> data) async {
+    String title,
+    List<Map<String, String>> generalInfo,
+    List<Map<String, dynamic>> transactionData,
+    List<BudgetHistoryEntry> budgetHistory,
+  ) async {
     final pdf = pw.Document();
 
-    // Load a custom font
+    // Load a custom font.
     final ByteData fontData =
         await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
     final ttf = pw.Font.ttf(fontData.buffer.asByteData());
 
-    // Get current month name
-    String monthName = DateTime.now().toLocal().toString().split('-')[1];
+    // Get current month name (as a string).
+    DateTime now = DateTime.now();
+    String date = now.month.toString() + "-" + now.year.toString();
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text("$title - $monthName",
-                style: pw.TextStyle(
-                    fontSize: 24, fontWeight: pw.FontWeight.bold, font: ttf)),
-            pw.SizedBox(height: 16),
-            pw.Table.fromTextArray(
-              headers: data.isNotEmpty ? data.first.keys.toList() : [],
-              data: data.map((item) => item.values.toList()).toList(),
-              border: pw.TableBorder.all(),
-              cellStyle: pw.TextStyle(fontSize: 12, font: ttf),
-            ),
-          ],
-        ),
+    // Define maximum rows per page for each table.
+    const int maxTransactionRowsPerPage = 20;
+    const int maxBudgetRowsPerPage = 20;
+
+    // Build header widget (common for the first page).
+    final header = pw.Center(
+      child: pw.Text(
+        "$title - $date",
+        style: pw.TextStyle(
+            fontSize: 24, fontWeight: pw.FontWeight.bold, font: ttf),
       ),
     );
 
-    // Save the PDF
+    // Build general information widget.
+    final generalInfoWidget = pw.Row(
+      children: generalInfo.map((info) {
+        return pw.Expanded(
+            child: pw.Container(
+          margin: const pw.EdgeInsets.symmetric(horizontal: 10),
+          padding: const pw.EdgeInsets.all(15),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(),
+            borderRadius: pw.BorderRadius.circular(8),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(info["title"] ?? "",
+                  style: pw.TextStyle(
+                      fontSize: 14, fontWeight: pw.FontWeight.bold, font: ttf)),
+              pw.SizedBox(height: 12),
+              pw.Text(info["value"] ?? "",
+                  style: pw.TextStyle(fontSize: 11, font: ttf)),
+              pw.SizedBox(height: 12),
+              pw.Text(info["amount"] ?? "",
+                  style: pw.TextStyle(fontSize: 11, font: ttf)),
+            ],
+          ),
+        ));
+      }).toList(),
+    );
+
+    // -----------------------
+    // Paginate Transactions Table
+    // -----------------------
+
+    // Prepare transactions table data (each row is a list of strings).
+    List<List<String>> transactionRows = [];
+    if (transactionData.isNotEmpty) {
+      transactionRows = transactionData
+          .map((item) => item.values.map((v) => "$v").toList())
+          .toList();
+    }
+
+    // Calculate number of chunks (pages) needed for transactions.
+    int tChunks = (transactionRows.length / maxTransactionRowsPerPage).ceil();
+
+    for (int i = 0; i < tChunks; i++) {
+      final start = i * maxTransactionRowsPerPage;
+      final end = (start + maxTransactionRowsPerPage > transactionRows.length)
+          ? transactionRows.length
+          : start + maxTransactionRowsPerPage;
+      final chunk = transactionRows.sublist(start, end);
+
+      // For the first chunk, include header and general info.
+      if (i == 0) {
+        pdf.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  header,
+                  pw.SizedBox(height: 20),
+                  generalInfoWidget,
+                  pw.SizedBox(height: 20),
+                  pw.Text("List of Transactions:",
+                      style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                          font: ttf)),
+                  pw.SizedBox(height: 10),
+                  (transactionRows.isNotEmpty)
+                      ? pw.Table.fromTextArray(
+                          headers: transactionData.first.keys.toList(),
+                          data: chunk,
+                          border: pw.TableBorder.all(),
+                          cellStyle: pw.TextStyle(fontSize: 12, font: ttf),
+                        )
+                      : pw.Text("No transactions available.",
+                          style: pw.TextStyle(fontSize: 12, font: ttf)),
+                ],
+              );
+            },
+          ),
+        );
+      } else {
+        // For subsequent transaction pages, include a continuation header.
+        pdf.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text("List of Transactions (cont.):",
+                      style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                          font: ttf)),
+                  pw.SizedBox(height: 10),
+                  pw.Table.fromTextArray(
+                    headers: transactionData.first.keys.toList(),
+                    data: chunk,
+                    border: pw.TableBorder.all(),
+                    cellStyle: pw.TextStyle(fontSize: 12, font: ttf),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      }
+    }
+
+    // -----------------------
+    // Paginate Budget History Table
+    // -----------------------
+
+    // Prepare budget history table data.
+    List<List<String>> budgetRows = budgetHistory.map((entry) {
+      return [
+        "${entry.updatedAt.day}-${entry.updatedAt.month}-${entry.updatedAt.year}",
+        entry.amount.toStringAsFixed(2),
+        entry.transactionId != null
+            ? entry.transactionId.toString()
+            : "manually update"
+      ];
+    }).toList();
+
+    int bChunks = (budgetRows.length / maxBudgetRowsPerPage).ceil();
+    for (int i = 0; i < bChunks; i++) {
+      final start = i * maxBudgetRowsPerPage;
+      final end = (start + maxBudgetRowsPerPage > budgetRows.length)
+          ? budgetRows.length
+          : start + maxBudgetRowsPerPage;
+      final chunk = budgetRows.sublist(start, end);
+
+      // For the first chunk of budget history, include a header.
+      if (i == 0) {
+        pdf.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text("Your Budget:",
+                      style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                          font: ttf)),
+                  pw.SizedBox(height: 10),
+                  pw.Table.fromTextArray(
+                    headers: ["Date", "Remaining Budget", "transactionId"],
+                    data: chunk,
+                    border: pw.TableBorder.all(),
+                    cellStyle: pw.TextStyle(fontSize: 12, font: ttf),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      } else {
+        // For subsequent budget pages, indicate continuation.
+        pdf.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text("Your Budget (cont.):",
+                      style: pw.TextStyle(
+                          fontSize: 16,
+                          fontWeight: pw.FontWeight.bold,
+                          font: ttf)),
+                  pw.SizedBox(height: 10),
+                  pw.Table.fromTextArray(
+                    headers: ["Date", "Remaining Budget", "transactionId"],
+                    data: chunk,
+                    border: pw.TableBorder.all(),
+                    cellStyle: pw.TextStyle(fontSize: 12, font: ttf),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      }
+    }
+
+    // -----------------------
+    // Save the PDF.
     bool status = await requestStoragePermission();
     if (status) {
       String? selectedFolder = await FilePicker.platform.getDirectoryPath();
       if (selectedFolder != null) {
-        final file = File(selectedFolder + "/report.pdf");
+        final file = File("$selectedFolder/report_$date.pdf");
         await file.writeAsBytes(await pdf.save());
       }
     }
@@ -51,7 +237,6 @@ class PdfExporter {
 
   static Future<bool> requestStoragePermission() async {
     var status = await Permission.storage.request();
-
     if (status.isGranted) {
       return true;
     } else if (status.isPermanentlyDenied) {

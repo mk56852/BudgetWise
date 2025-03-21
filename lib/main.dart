@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/notification.dart';
@@ -37,6 +38,7 @@ import 'data/models/expense_limit.dart'; // Import the ExpenseLimit model
 import 'data/repositories/expense_limit_repository.dart'; // Import the ExpenseLimitRepository
 import 'services/expense_limit_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:page_transition/page_transition.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -113,9 +115,37 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AppServices.budgetService.getBudget() != null
-          ? MainScreen()
-          : WelcomeScreen(),
+      home: AnimatedSplashScreen(
+        centered: true,
+        splashIconSize: 250,
+        splash: FittedBox(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                  height: 220,
+                  width: 200,
+                  child: Image.asset(
+                    'assets/images/budgetWiseIcon.png',
+                  )),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Budget Wise !",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+              )
+            ],
+          ),
+        ),
+        nextScreen: AppServices.budgetService.getBudget() != null
+            ? MainScreen()
+            : WelcomeScreen(),
+        duration: 2600,
+        splashTransition: SplashTransition.fadeTransition,
+        pageTransitionType: PageTransitionType.bottomToTop,
+      ),
     );
   }
 }

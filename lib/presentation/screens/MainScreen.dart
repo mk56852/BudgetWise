@@ -1,10 +1,13 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/analytics/analytics_screen.dart';
 import 'package:budget_wise/presentation/screens/goals/SavingsGoalsList.dart';
 import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
 import 'package:budget_wise/presentation/screens/home/home_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/transactions_screen.dart';
+import 'package:budget_wise/services/app_services.dart';
+import 'package:budget_wise/services/pdf_exporter.dart';
 import 'package:fab_circular_menu_plus/fab_circular_menu_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -216,10 +219,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             InkWell(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddSavingsGoalScreen())),
+              onTap: () => exportCurrentMonthData(),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -233,6 +233,50 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ]),
     );
+  }
+
+  void exportCurrentMonthData() async {
+    DateTime now = DateTime.now();
+    int expensesNumber = AppServices.transactionService
+        .getExpensesFromMonthYear(now.year, now.month)
+        .length;
+    int incomesNumber = AppServices.transactionService
+        .getIncomesFromMonthYear(now.year, now.month)
+        .length;
+
+    String currency = AppServices.userService.getCurrentUser()!.currency;
+    double expenseTotal = AppServices.transactionService
+        .calculateTotalExpensesByMonth(now.year, now.month);
+
+    double incomeTotal = AppServices.transactionService
+        .calculateTotalIncomeByMonth(now.year, now.month);
+    double netTotal = incomeTotal - expenseTotal;
+
+    List<Transaction> transactions = await AppServices.transactionService
+        .getAllTranasactionsForMonth(now.year, now.month);
+
+    List<Map<String, dynamic>> sampleData =
+        transactions.map((item) => item.toJson()).toList();
+    List<Map<String, String>> generalInfo = [
+      {
+        "title": "Total Incomes",
+        "value": "$incomesNumber transactions",
+        "amount": "$incomeTotal $currency"
+      },
+      {
+        "title": "Total Expenses",
+        "value": "$expensesNumber transactions",
+        "amount": "$expenseTotal $currency"
+      },
+      {
+        "title": "Net Balance",
+        "value": "current month balance",
+        "amount": "$netTotal $currency"
+      },
+    ];
+
+    await PdfExporter.exportToPdf("Monthly Report", generalInfo, sampleData,
+        await AppServices.budgetService.getAllHistory());
   }
 
   Widget _generateDrawer() {

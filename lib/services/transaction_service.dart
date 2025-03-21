@@ -15,6 +15,10 @@ class TransactionService {
   ValueListenable<Box<Transaction>> get transactionsListenable =>
       _transactionRepository.transactionsListenable;
 
+  /***
+   * Add Section 
+   */
+
   Future<void> addTransaction(
       BuildContext context, Transaction transaction) async {
     // Fetch the current budget
@@ -90,7 +94,24 @@ class TransactionService {
     budget.updateBudget(newAmount, DateTime.now(), txn.id);
   }
 
-  // Get expenses for a specific month and year
+  /***
+   * Functions By Month
+   */
+
+  List<Transaction> getAllTranasactionsForMonth(int year, int month) {
+    DateTime startDate = DateTime(year, month, 1);
+    DateTime currentDate = DateTime.now();
+
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
+            transaction.date.isBefore(currentDate))
+        .toList();
+  }
+
   List<Transaction> getExpensesFromMonthYear(int year, int month) {
     DateTime startDate = DateTime(year, month, 1);
     DateTime currentDate = DateTime.now();
@@ -108,52 +129,19 @@ class TransactionService {
         .toList();
   }
 
-  // Get incomes for a specific month and year
   List<Transaction> getIncomesFromMonthYear(int year, int month) {
     DateTime startDate = DateTime(year, month, 1);
     DateTime currentDate = DateTime.now();
 
-    // Fetch all transactions
     List<Transaction> allTransactions =
         _transactionRepository.getAllTransactions();
 
-    // Filter for incomes within the date range
     return allTransactions
         .where((transaction) =>
             transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
             transaction.date.isBefore(currentDate) &&
             transaction.type == 'income')
         .toList();
-  }
-
-  List<Transaction> getAllTransactionsWithFilter(
-      {bool? isRecurring, String? achievementStatus}) {
-    List<Transaction> transactions =
-        _transactionRepository.getAllTransactions();
-
-    // Apply filters if provided
-    if (isRecurring != null) {
-      transactions = transactions
-          .where((transaction) => transaction.isRecurring == isRecurring)
-          .toList();
-    }
-
-    if (achievementStatus != null) {
-      transactions = transactions.where((transaction) {
-        if (achievementStatus == 'achieved') {
-          return transaction.isAchieved;
-        } else if (achievementStatus == 'not achieved yet') {
-          return !transaction.isAchieved;
-        }
-        return true; // For 'both', return all
-      }).toList();
-    }
-
-    return transactions;
-  }
-
-  List<Transaction> getAllTransactions() {
-    return _transactionRepository.getAllTransactions();
   }
 
   // Get transactions for a specific month and year
@@ -184,6 +172,43 @@ class TransactionService {
     final totalIncome = calculateTotalIncomeByMonth(year, month);
     final totalExpenses = calculateTotalExpensesByMonth(year, month);
     return totalIncome - totalExpenses;
+  }
+
+/**
+ * Filter Section
+ */
+  List<Transaction> getAllTransactionsWithFilter(
+      {bool? isRecurring, String? achievementStatus}) {
+    List<Transaction> transactions =
+        _transactionRepository.getAllTransactions();
+
+    // Apply filters if provided
+    if (isRecurring != null) {
+      transactions = transactions
+          .where((transaction) => transaction.isRecurring == isRecurring)
+          .toList();
+    }
+
+    if (achievementStatus != null) {
+      transactions = transactions.where((transaction) {
+        if (achievementStatus == 'achieved') {
+          return transaction.isAchieved;
+        } else if (achievementStatus == 'not achieved yet') {
+          return !transaction.isAchieved;
+        }
+        return true; // For 'both', return all
+      }).toList();
+    }
+
+    return transactions;
+  }
+
+  /***
+   * All Data Section 
+   */
+
+  List<Transaction> getAllTransactions() {
+    return _transactionRepository.getAllTransactions();
   }
 
   // Get transactions by category

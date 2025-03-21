@@ -4,12 +4,12 @@ import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/budget_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
-import 'package:budget_wise/presentation/screens/analytics/widgets/tranasction_chart.dart';
+
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
 import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
-import 'package:budget_wise/services/pdf_exporter.dart';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_wise/data/models/expense_limit.dart';
@@ -29,16 +29,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     setState(() {
       month = month == "current" ? "previous" : "current";
     });
-  }
-
-  void exportCurrentMonthData() async {
-    List<Map<String, dynamic>> sampleData = [
-      {"Category": "Food", "Amount": 200.0},
-      {"Category": "Transport", "Amount": 150.0},
-      {"Category": "Entertainment", "Amount": 100.0},
-    ];
-
-    await PdfExporter.exportToPdf("Monthly Report", sampleData);
   }
 
   @override
