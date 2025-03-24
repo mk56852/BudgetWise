@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
+import 'package:budget_wise/data/models/transaction.dart';
+import 'package:budget_wise/services/app_services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 
@@ -30,7 +33,7 @@ class PdfExporter {
     // Build header widget (common for the first page).
     final header = pw.Center(
       child: pw.Text(
-        "$title - $date",
+        title,
         style: pw.TextStyle(
             fontSize: 24, fontWeight: pw.FontWeight.bold, font: ttf),
       ),
@@ -229,7 +232,7 @@ class PdfExporter {
     if (status) {
       String? selectedFolder = await FilePicker.platform.getDirectoryPath();
       if (selectedFolder != null) {
-        final file = File("$selectedFolder/report_$date.pdf");
+        final file = File("$selectedFolder/$title.pdf");
         await file.writeAsBytes(await pdf.save());
       }
     }
@@ -244,5 +247,92 @@ class PdfExporter {
     } else {
       return false;
     }
+  }
+
+  static void exportCurrentMonthData() async {
+    DateTime now = DateTime.now();
+    int expensesNumber = AppServices.transactionService
+        .getExpensesFromMonthYear(now.year, now.month)
+        .length;
+    int incomesNumber = AppServices.transactionService
+        .getIncomesFromMonthYear(now.year, now.month)
+        .length;
+
+    String currency = AppServices.userService.getCurrentUser()!.currency;
+    double expenseTotal = AppServices.transactionService
+        .calculateTotalExpensesByMonth(now.year, now.month);
+
+    double incomeTotal = AppServices.transactionService
+        .calculateTotalIncomeByMonth(now.year, now.month);
+    double netTotal = incomeTotal - expenseTotal;
+
+    List<Transaction> transactions = await AppServices.transactionService
+        .getAllTranasactionsForMonth(now.year, now.month);
+
+    List<Map<String, dynamic>> sampleData =
+        transactions.map((item) => item.toJson()).toList();
+    List<Map<String, String>> generalInfo = [
+      {
+        "title": "Total Incomes",
+        "value": "$incomesNumber transactions",
+        "amount": "$incomeTotal $currency"
+      },
+      {
+        "title": "Total Expenses",
+        "value": "$expensesNumber transactions",
+        "amount": "$expenseTotal $currency"
+      },
+      {
+        "title": "Net Balance",
+        "value": "current month balance",
+        "amount": "$netTotal $currency"
+      },
+    ];
+    String month = now.month.toString() + " - " + now.year.toString();
+    await exportToPdf("Monthly Report  $month", generalInfo, sampleData,
+        await AppServices.budgetService.getAllHistory());
+  }
+
+  static void exportCustomData(DateTime start, DateTime end) async {
+    int expensesNumber = AppServices.transactionService
+        .getExpensesForCustomDate(start, end)
+        .length;
+    int incomesNumber = AppServices.transactionService
+        .getIncomesForCustomDate(start, end)
+        .length;
+
+    String currency = AppServices.userService.getCurrentUser()!.currency;
+    double expenseTotal = AppServices.transactionService
+        .calculateTotalExpenseForCustomDate(start, end);
+
+    double incomeTotal = AppServices.transactionService
+        .calculateTotalIncomeForCustomDate(start, end);
+    double netTotal = incomeTotal - expenseTotal;
+
+    List<Transaction> transactions = await AppServices.transactionService
+        .getTransactionForCustomDate(start, end);
+    List<Map<String, dynamic>> sampleData =
+        transactions.map((item) => item.toJson()).toList();
+    List<Map<String, String>> generalInfo = [
+      {
+        "title": "Total Incomes",
+        "value": "$incomesNumber transactions",
+        "amount": "$incomeTotal $currency"
+      },
+      {
+        "title": "Total Expenses",
+        "value": "$expensesNumber transactions",
+        "amount": "$expenseTotal $currency"
+      },
+      {
+        "title": "Net Balance",
+        "value": "current month balance",
+        "amount": "$netTotal $currency"
+      },
+    ];
+    String startD = DateFormat.yMMMd().format(start);
+    String endD = DateFormat.yMMMd().format(end);
+    await exportToPdf("Custom Report $startD - $endD", generalInfo, sampleData,
+        await AppServices.budgetService.getAllHistory());
   }
 }

@@ -10,7 +10,6 @@ import 'package:budget_wise/services/app_services.dart';
 import 'package:budget_wise/services/pdf_exporter.dart';
 import 'package:fab_circular_menu_plus/fab_circular_menu_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 final List<SalomonBottomBarItem> bottomNavItems = [
@@ -44,7 +43,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _advancedDrawerController = AdvancedDrawerController();
   int _currentIndex = 0;
 
   List<Widget?> get _floatingButton => [
@@ -54,6 +52,12 @@ class _MainScreenState extends State<MainScreen> {
         _generate_analytics_floating_button()
       ];
 
+  void updateScreen(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   List<Widget> get _screens => [
         HomeScreen(navigate: updateScreen),
         TransactionsScreen(),
@@ -61,85 +65,43 @@ class _MainScreenState extends State<MainScreen> {
         AnalyticsScreen(),
       ];
 
-  void _handleMenuButtonPressed() {
-    _advancedDrawerController.showDrawer();
-  }
-
-  void updateScreen(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return AdvancedDrawer(
-      backdrop: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.black87, Colors.blueGrey.withOpacity(0.2)],
+    return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          alignment: Alignment.topLeft,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.darkBlueColor,
+                Colors.black,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+              child: SingleChildScrollView(child: _screens[_currentIndex]),
+            ),
           ),
         ),
-      ),
-      controller: _advancedDrawerController,
-      animationCurve: Curves.easeInOut,
-      animationDuration: const Duration(milliseconds: 300),
-      animateChildDecoration: true,
-      rtlOpening: false,
-      // openScale: 1.0,
-      disabledGestures: false,
-      childDecoration: const BoxDecoration(
-        // NOTICE: Uncomment if you want to add shadow behind the page.
-        // Keep in mind that it may cause animation jerks.
-        // boxShadow: <BoxShadow>[
-        //   BoxShadow(
-        //     color: Colors.black12,
-        //     blurRadius: 0.0,
-        //   ),
-        // ],
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
-      drawer: _generateDrawer(),
-      child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-            alignment: Alignment.topLeft,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.darkBlueColor,
-                  Colors.black,
-                ],
-              ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-                child: SingleChildScrollView(child: _screens[_currentIndex]),
-              ),
-            ),
-          ),
-          bottomNavigationBar: SalomonBottomBar(
-            currentIndex: _currentIndex,
+        bottomNavigationBar: SalomonBottomBar(
+          currentIndex: _currentIndex,
 
-            onTap: (index) {
-              updateScreen(index);
-            },
-            items: bottomNavItems,
-            selectedItemColor: Colors.white, // Primary color
-            unselectedItemColor:
-                Colors.white.withOpacity(0.8), // Unselected color
-            backgroundColor: Colors.black, // Dark background
-          ),
-          floatingActionButton: _floatingButton[_currentIndex]),
-    );
+          onTap: (index) {
+            updateScreen(index);
+          },
+          items: bottomNavItems,
+          selectedItemColor: Colors.white, // Primary color
+          unselectedItemColor:
+              Colors.white.withOpacity(0.8), // Unselected color
+          backgroundColor: Colors.black, // Dark background
+        ),
+        floatingActionButton: _floatingButton[_currentIndex]);
   }
 
   Widget _generate_transaction_floating_button() {
@@ -203,10 +165,7 @@ class _MainScreenState extends State<MainScreen> {
           ringDiameter: constraints.maxWidth * 0.9,
           children: <Widget>[
             InkWell(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddTransactionScreen())),
+              onTap: () => PdfExporter.exportCurrentMonthData(),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -219,7 +178,78 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             InkWell(
-              onTap: () => exportCurrentMonthData(),
+              onTap: () async {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    DateTime? startDate;
+                    DateTime? endDate;
+                    return AlertDialog(
+                      title: Text("Select Date Range"),
+                      content: StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Select Date Range",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                                SizedBox(height: 20),
+                                Text(
+                                    "Start Date: ${startDate != null ? startDate!.toLocal().toString().split(' ')[0] : 'Not selected'}"),
+                                TextButton(
+                                  onPressed: () async {
+                                    startDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime.now(),
+                                    );
+                                    setState(
+                                        () {}); // Refresh to show selected date
+                                  },
+                                  child: Text("Select Start Date"),
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                    "End Date: ${endDate != null ? endDate!.toLocal().toString().split(' ')[0] : 'Not selected'}"),
+                                TextButton(
+                                  onPressed: () async {
+                                    endDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: startDate ?? DateTime.now(),
+                                      firstDate: startDate ?? DateTime(2000),
+                                      lastDate: DateTime.now(),
+                                    );
+                                    setState(
+                                        () {}); // Refresh to show selected date
+                                  },
+                                  child: Text("Select End Date"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            if (startDate != null && endDate != null) {
+                              PdfExporter.exportCustomData(
+                                  startDate!, endDate!);
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Submit"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -232,125 +262,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ]),
-    );
-  }
-
-  void exportCurrentMonthData() async {
-    DateTime now = DateTime.now();
-    int expensesNumber = AppServices.transactionService
-        .getExpensesFromMonthYear(now.year, now.month)
-        .length;
-    int incomesNumber = AppServices.transactionService
-        .getIncomesFromMonthYear(now.year, now.month)
-        .length;
-
-    String currency = AppServices.userService.getCurrentUser()!.currency;
-    double expenseTotal = AppServices.transactionService
-        .calculateTotalExpensesByMonth(now.year, now.month);
-
-    double incomeTotal = AppServices.transactionService
-        .calculateTotalIncomeByMonth(now.year, now.month);
-    double netTotal = incomeTotal - expenseTotal;
-
-    List<Transaction> transactions = await AppServices.transactionService
-        .getAllTranasactionsForMonth(now.year, now.month);
-
-    List<Map<String, dynamic>> sampleData =
-        transactions.map((item) => item.toJson()).toList();
-    List<Map<String, String>> generalInfo = [
-      {
-        "title": "Total Incomes",
-        "value": "$incomesNumber transactions",
-        "amount": "$incomeTotal $currency"
-      },
-      {
-        "title": "Total Expenses",
-        "value": "$expensesNumber transactions",
-        "amount": "$expenseTotal $currency"
-      },
-      {
-        "title": "Net Balance",
-        "value": "current month balance",
-        "amount": "$netTotal $currency"
-      },
-    ];
-
-    await PdfExporter.exportToPdf("Monthly Report", generalInfo, sampleData,
-        await AppServices.budgetService.getAllHistory());
-  }
-
-  Widget _generateDrawer() {
-    return SafeArea(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerRight,
-            end: Alignment.centerLeft,
-            colors: [
-              AppColors.darkBlueColor,
-              Colors.black,
-            ],
-          ),
-        ),
-        child: ListTileTheme(
-          textColor: Colors.white,
-          iconColor: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                width: 128.0,
-                height: 128.0,
-                margin: const EdgeInsets.only(
-                  top: 24.0,
-                  bottom: 64.0,
-                ),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: Colors.black26,
-                  shape: BoxShape.circle,
-                ),
-                child: Image.asset(
-                  'assets/images/drag.png',
-                ),
-              ),
-              ListTile(
-                onTap: () {},
-                leading: Icon(Icons.home),
-                title: Text('Home'),
-              ),
-              ListTile(
-                onTap: () {},
-                leading: Icon(Icons.account_circle_rounded),
-                title: Text('Profile'),
-              ),
-              ListTile(
-                onTap: () {},
-                leading: Icon(Icons.favorite),
-                title: Text('Donation'),
-              ),
-              ListTile(
-                onTap: () {},
-                leading: Icon(Icons.settings),
-                title: Text('Settings'),
-              ),
-              Spacer(),
-              DefaultTextStyle(
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white54,
-                ),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 16.0,
-                  ),
-                  child: Text('Terms of Service | Privacy Policy'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

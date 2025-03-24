@@ -17,6 +17,5 @@ class AppServices {
   static late NotificationService notificationService;
   static late AnalyticsService analyticsService;
   static late SettingsService settingsService;
-  static late ExpenseLimitService
-      expenseLimitService; // Add the ExpenseLimitService
+  static late ExpenseLimitService expenseLimitService;
 }

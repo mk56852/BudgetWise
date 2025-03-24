@@ -69,14 +69,10 @@ class TransactionService {
     }
     budget.updateBudget(newAmount, DateTime.now(), transaction.id);
     await _budgetRespository.updateBudget(budget);
-
-    // Save the transaction
     _transactionRepository.addTransaction(transaction);
   }
 
   void confirmRecurringTransaction(Transaction txn) {
-    // Calculate next occurrence:
-    // Dart's DateTime handles month rollover automatically.
     DateTime nextDate =
         DateTime(txn.date.year, txn.date.month + 1, txn.date.day);
 
@@ -92,6 +88,61 @@ class TransactionService {
     }
     _transactionRepository.updateTransaction(txn);
     budget.updateBudget(newAmount, DateTime.now(), txn.id);
+  }
+
+  /***
+   * Function For period of time
+   */
+
+  List<Transaction> getTransactionForCustomDate(DateTime start, DateTime end) {
+    DateTime dayBefore = start.subtract(Duration(days: 1));
+
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(dayBefore) &&
+            transaction.date.isBefore(end))
+        .toList();
+  }
+
+  List<Transaction> getExpensesForCustomDate(DateTime start, DateTime end) {
+    DateTime dayBefore = start.subtract(Duration(days: 1));
+
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(dayBefore) &&
+            transaction.date.isBefore(end) &&
+            transaction.type == "expense")
+        .toList();
+  }
+
+  List<Transaction> getIncomesForCustomDate(DateTime start, DateTime end) {
+    DateTime dayBefore = start.subtract(Duration(days: 1));
+
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+
+    return allTransactions
+        .where((transaction) =>
+            transaction.date.isAfter(dayBefore) &&
+            transaction.date.isBefore(end) &&
+            transaction.type == "income")
+        .toList();
+  }
+
+  double calculateTotalIncomeForCustomDate(DateTime start, DateTime end) {
+    List<Transaction> allTransactions = getIncomesForCustomDate(start, end);
+    return allTransactions.fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double calculateTotalExpenseForCustomDate(DateTime start, DateTime end) {
+    List<Transaction> allTransactions = getExpensesForCustomDate(start, end);
+    return allTransactions.fold(0.0, (sum, item) => sum + item.amount);
   }
 
   /***

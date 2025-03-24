@@ -70,6 +70,16 @@ class BudgetService {
     });
   }
 
+  List<BudgetHistoryEntry> getHistoryForCustomDate(
+      DateTime start, DateTime end) {
+    Budget budget = getBudget()!;
+    DateTime dayBefore = start.subtract(Duration(days: 1));
+    return budget.history
+        .where((entry) =>
+            entry.updatedAt.isBefore(end) && entry.updatedAt.isAfter(dayBefore))
+        .toList();
+  }
+
   List<BudgetHistoryEntry> getLatestBudgetHistoryPerDay(
       List<BudgetHistoryEntry> historyList) {
     Map<String, BudgetHistoryEntry> latestEntries = {};
