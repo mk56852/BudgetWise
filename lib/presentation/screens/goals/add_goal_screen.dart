@@ -265,7 +265,7 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
                   height: 16,
                 ),
                 // Notes
-                _inputField("Notes (Optional)", _notesController, 150),
+                _inputField("Description", _notesController, 150),
                 SizedBox(
                   height: 16,
                 ),

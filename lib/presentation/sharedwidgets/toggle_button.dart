@@ -53,6 +53,7 @@ class _ToggleButtonState extends State<AppToggleButton> {
             alignment: Alignment.center,
             child: Text(
               item,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: isSelected ? Colors.black : Colors.white,
                 fontWeight: FontWeight.bold,

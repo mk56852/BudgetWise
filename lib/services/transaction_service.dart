@@ -42,15 +42,15 @@ class TransactionService {
           return AlertDialog(
             title: Text('Schedule Transaction'),
             content: Text(
-                'Do you want to schedule this transaction or save it immediately ?'),
+                'You chose a later date. Would you like to schedule this transaction or complete it now and mark it as done?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('No'),
+                child: Text('Save and complete'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Yes'),
+                child: Text('Save and schedule'),
               ),
             ],
           );
@@ -70,24 +70,6 @@ class TransactionService {
     budget.updateBudget(newAmount, DateTime.now(), transaction.id);
     await _budgetRespository.updateBudget(budget);
     _transactionRepository.addTransaction(transaction);
-  }
-
-  void confirmRecurringTransaction(Transaction txn) {
-    DateTime nextDate =
-        DateTime(txn.date.year, txn.date.month + 1, txn.date.day);
-
-    txn.date = nextDate;
-    txn.isAchieved = false;
-
-    Budget budget = _budgetRespository.getBudget()!;
-    double newAmount = budget.amount;
-    if (txn.type == 'income') {
-      newAmount += txn.amount;
-    } else if (txn.type == 'expense') {
-      newAmount -= txn.amount;
-    }
-    _transactionRepository.updateTransaction(txn);
-    budget.updateBudget(newAmount, DateTime.now(), txn.id);
   }
 
   /***
@@ -175,7 +157,7 @@ class TransactionService {
     return allTransactions
         .where((transaction) =>
             transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
-            transaction.date.isBefore(currentDate) &&
+            transaction.date.isBefore(currentDate.add(Duration(days: 1))) &&
             transaction.type == 'expense')
         .toList();
   }
@@ -190,7 +172,7 @@ class TransactionService {
     return allTransactions
         .where((transaction) =>
             transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
-            transaction.date.isBefore(currentDate) &&
+            transaction.date.isBefore(currentDate.add(Duration(days: 1))) &&
             transaction.type == 'income')
         .toList();
   }
@@ -294,9 +276,13 @@ class TransactionService {
     await _transactionRepository.deleteTransaction(id);
   }
 
-  Map<String, double> getTotalExpensesForCategories() {
-    List<Transaction> transactions =
-        _transactionRepository.getAllTransactions();
+  Map<String, double> getTotalExpensesForCategories(int? year, int? month) {
+    List<Transaction> transactions;
+    if (year != null) {
+      transactions = getTransactionsByMonth(year, month!);
+    } else {
+      transactions = _transactionRepository.getAllTransactions();
+    }
     Map<String, double> categoryExpenses = {};
 
     // Loop through all transactions
@@ -316,9 +302,14 @@ class TransactionService {
     return categoryExpenses;
   }
 
-  Map<String, double> getTotalIncomesForCategories() {
-    List<Transaction> transactions =
-        _transactionRepository.getAllTransactions();
+  Map<String, double> getTotalIncomesForCategories(int? year, int? month) {
+    List<Transaction> transactions;
+    if (year != null) {
+      transactions = getTransactionsByMonth(year, month!);
+    } else {
+      transactions = _transactionRepository.getAllTransactions();
+    }
+
     Map<String, double> incomeCategory = {};
 
     // Loop through all transactions

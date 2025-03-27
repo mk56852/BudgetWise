@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 50,
           width: 50,
           child: Icon(
-            Icons.menu,
+            Icons.calendar_month_rounded,
             color: Colors.white,
             size: 30,
           ),
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 50,
           width: 50,
           child: Icon(
-            Icons.grid_view_rounded,
+            Icons.notifications_active,
             color: Colors.white,
             size: 30,
           ),

@@ -167,13 +167,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ),
           // Description Field
           _inputField(
-            label: "Description (Optional)",
+            label: "Description",
             controller: _descriptionController,
             height: 120,
             keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 20),
-          // Cancel & Save Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -56,6 +56,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             .calculateTotalIncomeByMonth(today.year, today.month)
         : AppServices.analyticsService.getCurrentMonthAnalytics()!.incomeTotal;
 
+    int previousMonth = today.month == 1 ? 12 : today.month - 1;
+    int previousYear = today.month == 1 ? today.year - 1 : today.year;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,21 +164,24 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 child: Column(
               children: [
                 _generateTitle("Budget progress per month"),
-                BudgetChart(),
+                BudgetChart(
+                  forLastMonth: month == "previous",
+                ),
               ],
             ))),
         SizedBox(height: 5),
         BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
         SizedBox(height: 5),
+        if (month == "current") SavingsGoalsProgress(),
 
-        SavingsGoalsProgress(),
-        SizedBox(height: 10),
+        if (month == "current") SizedBox(height: 10),
         AppContainer(
           child: Column(
             children: [
               _generateTitle("Expenses by Category"),
               SizedBox(height: 16),
-              SpendingBarChart(),
+              SpendingBarChart(
+                  forPreviousMonth: month == "current" ? false : true),
             ],
           ),
         ),
@@ -186,7 +192,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             children: [
               _generateTitle("Incomes by Category"),
               SizedBox(height: 16),
-              IncomesBarChart(),
+              IncomesBarChart(
+                  forPreviousMonth: month == "current" ? false : true),
             ],
           ),
         ),
@@ -283,7 +290,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       icon: category.icon,
                       limit: limit, // Set limit from expense limits
                       usedAmount: AppServices.transactionService
-                              .getTotalExpensesForCategories()[category.name] ??
+                              .getTotalExpensesForCategories(
+                                  month == "current"
+                                      ? today.year
+                                      : previousYear,
+                                  month == "current"
+                                      ? today.month
+                                      : previousMonth)[category.name] ??
                           0 // Retrieve used amount
                       ),
                 );
@@ -526,37 +539,91 @@ class SavingsGoalsProgress extends StatelessWidget {
     double totalTarget = goals.fold(0, (sum, goal) => sum + goal.targetAmount);
     double overallProgress =
         totalTarget > 0 ? (totalSaved / totalTarget).clamp(0.0, 1.0) : 0.0;
-
+    String currency = AppServices.userService.getCurrentUser()!.currency;
     return AppContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Total Savings Progress",
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          Center(
+            child: const Text(
+              "Total Savings Progress",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            "\$${totalSaved.toStringAsFixed(2)} saved of \$${totalTarget.toStringAsFixed(2)}",
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      "Current saving",
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    Center(
+                      child: Text(
+                        "${totalSaved.toStringAsFixed(1)}",
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      "Target amount",
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    Center(
+                      child: Text(
+                        "${totalTarget.toStringAsFixed(1)}",
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: overallProgress,
-              backgroundColor: Colors.grey.withOpacity(0.2),
-              color: Colors.white,
-              minHeight: 10,
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 50,
+              child: LinearProgressIndicator(
+                value: overallProgress,
+                backgroundColor: Colors.grey.withOpacity(0.2),
+                color: Colors.white,
+                minHeight: 10,
+              ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             "${(overallProgress * 100).toStringAsFixed(1)}% completed",
             style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),

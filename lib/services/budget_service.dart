@@ -43,6 +43,18 @@ class BudgetService {
         .toList();
   }
 
+  List<BudgetHistoryEntry> getBudgetHistoryForLastMonth() {
+    Budget budget = getBudget()!;
+    final now = DateTime.now();
+    int previousMonth = now.month == 1 ? 12 : now.month - 1;
+    int previousYear = now.month == 1 ? now.year - 1 : now.year;
+    return budget.history
+        .where((entry) =>
+            entry.updatedAt.month == previousMonth &&
+            entry.updatedAt.year == previousYear)
+        .toList();
+  }
+
   List<BudgetHistoryEntry> getBudgetHistoryForMonth(
       Budget budget, int month, int year) {
     return budget.history

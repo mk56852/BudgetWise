@@ -4,7 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class SpendingBarChart extends StatelessWidget {
-  const SpendingBarChart({super.key});
+  final bool forPreviousMonth;
+  const SpendingBarChart({super.key, this.forPreviousMonth = false});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,15 @@ class SpendingBarChart extends StatelessWidget {
       "ED",
       "O",
     ];
-
-    Map<String, double> items =
-        AppServices.transactionService.getTotalExpensesForCategories();
+    DateTime today = DateTime.now();
+    int month = today.month;
+    int year = today.year;
+    if (forPreviousMonth) {
+      year = month == 1 ? year - 1 : year;
+      month = month == 1 ? 12 : month - 1;
+    }
+    Map<String, double> items = AppServices.transactionService
+        .getTotalExpensesForCategories(year, month);
 
     return Column(
       children: [

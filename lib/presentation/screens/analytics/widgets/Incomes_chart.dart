@@ -4,7 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class IncomesBarChart extends StatelessWidget {
-  const IncomesBarChart({super.key});
+  final bool forPreviousMonth;
+  const IncomesBarChart({super.key, this.forPreviousMonth = false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,15 @@ class IncomesBarChart extends StatelessWidget {
       "C",
       "O",
     ];
-
-    Map<String, double> items =
-        AppServices.transactionService.getTotalIncomesForCategories();
+    DateTime today = DateTime.now();
+    int month = today.month;
+    int year = today.year;
+    if (forPreviousMonth) {
+      year = month == 1 ? year - 1 : year;
+      month = month == 1 ? 12 : month - 1;
+    }
+    Map<String, double> items = AppServices.transactionService
+        .getTotalIncomesForCategories(year, month);
 
     return Center(
       // Centering the widget

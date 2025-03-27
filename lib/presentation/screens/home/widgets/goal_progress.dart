@@ -107,12 +107,15 @@ class GoalProgress extends StatelessWidget {
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 10,
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(priorityColor),
+                      child: SizedBox(
+                        height: 17,
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 10,
+                          backgroundColor: Colors.white.withOpacity(0.2),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(priorityColor),
+                        ),
                       ),
                     ),
                   ),
