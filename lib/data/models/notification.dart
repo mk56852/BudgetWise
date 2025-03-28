@@ -1,3 +1,4 @@
+import 'package:budget_wise/data/models/notification_type.dart';
 import 'package:hive/hive.dart';
 part 'notification.g.dart';
 
@@ -7,22 +8,26 @@ class AppNotification {
   final String id;
 
   @HiveField(1)
-  final String type;
+  final NotificationType type;
 
   @HiveField(2)
   final String message;
 
   @HiveField(3)
-  final DateTime scheduledTime;
+  final DateTime? scheduledTime;
 
   @HiveField(4)
+  final String objectId;
+
+  @HiveField(5)
   bool isRead;
 
   AppNotification({
     required this.id,
     required this.type,
     required this.message,
-    required this.scheduledTime,
+    required this.objectId,
+    this.scheduledTime,
     this.isRead = false,
   });
 }

@@ -5,6 +5,7 @@ import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/goal_progress.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/recent_transactions.dart';
+import 'package:budget_wise/presentation/screens/notification/notification_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
@@ -85,13 +86,20 @@ class _HomeScreenState extends State<HomeScreen> {
             size: 30,
           ),
         ),
-        Container(
-          height: 50,
-          width: 50,
-          child: Icon(
-            Icons.notifications_active,
-            color: Colors.white,
-            size: 30,
+        InkWell(
+          onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => NotificationScreen())),
+          child: Container(
+            height: 50,
+            width: 50,
+            child: Hero(
+              tag: "NotifBull",
+              child: Icon(
+                Icons.notifications_active,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
           ),
         )
       ],

@@ -5,8 +5,13 @@ class AppContainer extends StatelessWidget {
   final double? height;
   final bool fillWidth;
   final Widget child;
+  final Color? color;
   const AppContainer(
-      {super.key, required this.child, this.fillWidth = true, this.height});
+      {super.key,
+      required this.child,
+      this.fillWidth = true,
+      this.height,
+      this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +20,7 @@ class AppContainer extends StatelessWidget {
       height: height,
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.containerColor,
+        color: color == null ? AppColors.containerColor : color,
         borderRadius: BorderRadius.circular(14),
       ),
       child: child,

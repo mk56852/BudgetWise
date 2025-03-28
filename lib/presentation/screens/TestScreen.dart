@@ -26,7 +26,6 @@ class TestScreen extends StatelessWidget {
                   onPressed: () {
                     List<Transaction> b =
                         AppServices.transactionService.getAllTransactions();
-                    print(b.length);
                   },
                   child: Text("Transactions"))
             ],

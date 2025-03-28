@@ -18,17 +18,18 @@ class AppNotificationAdapter extends TypeAdapter<AppNotification> {
     };
     return AppNotification(
       id: fields[0] as String,
-      type: fields[1] as String,
+      type: fields[1] as NotificationType,
       message: fields[2] as String,
-      scheduledTime: fields[3] as DateTime,
-      isRead: fields[4] as bool,
+      objectId: fields[4] as String,
+      scheduledTime: fields[3] as DateTime?,
+      isRead: fields[5] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, AppNotification obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,6 +39,8 @@ class AppNotificationAdapter extends TypeAdapter<AppNotification> {
       ..writeByte(3)
       ..write(obj.scheduledTime)
       ..writeByte(4)
+      ..write(obj.objectId)
+      ..writeByte(5)
       ..write(obj.isRead);
   }
 

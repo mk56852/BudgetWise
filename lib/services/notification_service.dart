@@ -21,6 +21,11 @@ class NotificationService {
     await _notificationRepository.updateNotification(notification);
   }
 
+  Future<void> achieveNotification(AppNotification notification) async {
+    notification.isRead = false;
+    await _notificationRepository.updateNotification(notification);
+  }
+
   // Delete a notification
   Future<void> deleteNotification(String id) async {
     await _notificationRepository.deleteNotification(id);
@@ -29,5 +34,16 @@ class NotificationService {
   // Get all notifications
   List<AppNotification> getAllNotifications() {
     return _notificationRepository.getAllNotifications();
+  }
+
+  List<AppNotification> getAllNotificationsSorted() {
+    List<AppNotification> notifications = getAllNotifications();
+    notifications.sort((a, b) => a.isRead ? 1 : -1);
+    return notifications;
+  }
+
+  List<AppNotification> getNewNotification() {
+    List<AppNotification> notifications = getAllNotifications();
+    return notifications.where((element) => element.isRead == false).toList();
   }
 }

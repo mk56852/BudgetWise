@@ -1,7 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/notification.dart';
+import 'package:budget_wise/data/models/notification_type.dart';
 import 'package:budget_wise/data/repositories/analytics_repository.dart';
 import 'package:budget_wise/data/repositories/budget_repository.dart';
 import 'package:budget_wise/data/repositories/category_repository.dart';
@@ -61,9 +61,8 @@ void main() async {
   Hive.registerAdapter(AnalyticsAdapter());
   Hive.registerAdapter(SettingsAdapter());
   Hive.registerAdapter(BudgetHistoryEntryAdapter());
-
-  Hive.registerAdapter(
-      ExpenseLimitAdapter()); // Register the ExpenseLimit adapter
+  Hive.registerAdapter(ExpenseLimitAdapter());
+  Hive.registerAdapter(NotificationTypeAdapter());
 
   await Hive.openBox<User>('users');
   await Hive.openBox<Budget>('budgets');
@@ -84,8 +83,7 @@ void main() async {
   final notificationRepository = NotificationRepository();
   final analyticsRepository = AnalyticsRepository();
   final settingsRepository = SettingsRepository();
-  final expenseLimitRepository =
-      ExpenseLimitRepository(); // Initialize the ExpenseLimitRepository
+  final expenseLimitRepository = ExpenseLimitRepository();
 
   AppServices.userService = UserService(userRepository);
   AppServices.budgetService = BudgetService(budgetRepository);
@@ -96,11 +94,24 @@ void main() async {
   AppServices.notificationService = NotificationService(notificationRepository);
   AppServices.analyticsService = AnalyticsService(analyticsRepository);
   AppServices.settingsService = SettingsService(settingsRepository);
-  AppServices.expenseLimitService = ExpenseLimitService(
-      expenseLimitRepository); // Add the ExpenseLimitService
+  AppServices.expenseLimitService = ExpenseLimitService(expenseLimitRepository);
   if (AppServices.budgetService.getBudget() != null) {
     AppServices.analyticsService.fixAnalytics();
   }
+
+  AppServices.notificationService.addNotification(AppNotification(
+      id: "3",
+      isRead: true,
+      type: NotificationType.AnalyticFileGeneration,
+      message: "This notifcation is just for testing behavior",
+      objectId: "objID"));
+  AppServices.notificationService.addNotification(AppNotification(
+      id: "4",
+      isRead: false,
+      type: NotificationType.SavingGoalDeadline,
+      message:
+          "this is the second test notification we need to check if overflow is updated",
+      objectId: "objID"));
   runApp(MyApp());
 }
 
