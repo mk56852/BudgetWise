@@ -21,7 +21,7 @@ class TipWidget extends StatelessWidget {
             message,
             style: TextStyle(
               color: Colors.white.withOpacity(0.8),
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
           ),

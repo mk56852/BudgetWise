@@ -135,7 +135,7 @@ class NotificationManager {
     List<Transaction> transactions =
         AppServices.transactionService.getNotAchievedTransaction();
     for (var transaction in transactions) {
-      if (transaction.date.isBefore(now)) {
+      if (transaction.date.isBefore(now) && !transaction.isAchieved) {
         AppNotification notification =
             AppNotification.fromTransaction(transaction);
         if (!existingNotif.contains(notification)) {

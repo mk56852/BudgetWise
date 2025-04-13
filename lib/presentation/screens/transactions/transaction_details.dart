@@ -1,6 +1,8 @@
+import 'package:budget_wise/data/models/budget.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
+import 'package:budget_wise/presentation/sharedwidgets/tip_widget.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/material.dart';
 
@@ -55,12 +57,40 @@ class TransactionDetailsScreen extends StatelessWidget {
               _detailItem(
                   "Date", transaction.date.toLocal().toString().split(' ')[0]),
               _detailItem(
-                  "Is Recurring", transaction.isRecurring ? "YES" : "NO"),
+                  "Already Achived ?", transaction.isAchieved ? "YES" : "NO"),
+              _detailItem(
+                  "Is Recurring ?", transaction.isRecurring ? "YES" : "NO"),
               _detailItem(
                   "Description", transaction.description ?? "No description"),
               SizedBox(
                 height: 30,
               ),
+              transaction.isAchieved
+                  ? SizedBox(
+                      height: 5,
+                    )
+                  : Center(
+                      child: Column(
+                      children: [
+                        TipWidget(
+                            message:
+                                "This transaction is scheduled for a later date. If it has already been realized click on the confirmation button",
+                            iconColor: Colors.redAccent),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        SizedBox(
+                          width: 200,
+                          child: AppActionButton(
+                              text: "Confirm Transaction",
+                              icon: Icons.done_all,
+                              onTab: () => _showAchieveConfirmation(context)),
+                        ),
+                        SizedBox(
+                          height: 7,
+                        )
+                      ],
+                    )),
               Center(
                 child: SizedBox(
                   width: 200,
@@ -98,6 +128,42 @@ class TransactionDetailsScreen extends StatelessWidget {
                 if (refresh != null) refresh!();
               },
               child: Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAchieveConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Transaction"),
+          content: Text("Are you sure this transaction has been realized ?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Close dialog
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                transaction.isAchieved = true;
+                AppServices.transactionService.updateTransaction(transaction);
+                Budget budget = AppServices.budgetService.getBudget()!;
+                if (transaction.type == "income") {
+                  budget.amount += transaction.amount;
+                } else {
+                  budget.amount -= transaction.amount;
+                }
+                AppServices.budgetService.updateBudget(budget);
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(
+                    context); // Return to previous screen after deletion
+                if (refresh != null) refresh!();
+              },
+              child: Text("Confirm", style: TextStyle(color: Colors.red)),
             ),
           ],
         );

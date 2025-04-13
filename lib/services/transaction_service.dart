@@ -72,6 +72,10 @@ class TransactionService {
     _transactionRepository.addTransaction(transaction);
   }
 
+  void updateTransaction(Transaction transaction) async {
+    await _transactionRepository.updateTransaction(transaction);
+  }
+
   Transaction? getTransactionById(String id) {
     return _transactionRepository.getTransaction(id);
   }
