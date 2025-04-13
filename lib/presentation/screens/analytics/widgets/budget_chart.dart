@@ -52,6 +52,10 @@ class BudgetChart extends StatelessWidget {
       if (first != null) {
         budgetHistory.add(first);
       }
+      if (budgetHistory.length == 1 && first != null) {
+        budgetHistory.add(BudgetHistoryEntry(
+            amount: first.amount, updatedAt: DateTime.now()));
+      }
     }
 
     budgetHistory =
@@ -69,7 +73,7 @@ class BudgetChart extends StatelessWidget {
         LineChartData(
           gridData: FlGridData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(

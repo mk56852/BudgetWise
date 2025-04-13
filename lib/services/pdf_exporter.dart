@@ -15,6 +15,7 @@ class PdfExporter {
     List<Map<String, dynamic>> transactionData,
     List<BudgetHistoryEntry> budgetHistory,
   ) async {
+    bool status = await requestStoragePermission();
     final pdf = pw.Document();
 
     // Load a custom font.
@@ -228,7 +229,7 @@ class PdfExporter {
 
     // -----------------------
     // Save the PDF.
-    bool status = await requestStoragePermission();
+
     if (status) {
       String? selectedFolder = await FilePicker.platform.getDirectoryPath();
       if (selectedFolder != null) {

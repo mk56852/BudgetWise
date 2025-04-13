@@ -44,12 +44,12 @@ class AppIconButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Function onTap;
-  final String text;
-  const AppIconButton(
+  String? text;
+  AppIconButton(
       {super.key,
       required this.icon,
       required this.onTap,
-      required this.text,
+      this.text,
       this.color = Colors.white});
 
   @override
@@ -74,8 +74,11 @@ class AppIconButton extends StatelessWidget {
         SizedBox(
           height: 10,
         ),
-        Text(text,
-            style: TextStyle(fontSize: 12, color: Colors.white), softWrap: true)
+        text != null
+            ? Text(text!,
+                style: TextStyle(fontSize: 12, color: Colors.white),
+                softWrap: true)
+            : SizedBox()
       ],
     );
   }

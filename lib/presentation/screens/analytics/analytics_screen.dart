@@ -167,6 +167,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 BudgetChart(
                   forLastMonth: month == "previous",
                 ),
+                Text(
+                  "Click on the chart points to see the amount",
+                  style: TextStyle(color: Colors.white60, fontSize: 13),
+                )
               ],
             ))),
         SizedBox(height: 5),
@@ -176,25 +180,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
         if (month == "current") SizedBox(height: 10),
         AppContainer(
-          child: Column(
-            children: [
-              _generateTitle("Expenses by Category"),
-              SizedBox(height: 16),
-              SpendingBarChart(
-                  forPreviousMonth: month == "current" ? false : true),
-            ],
+          child: ExpenseCharts(
+            forPreviousMonth: month == "current" ? false : true,
+            title: _generateTitle("Expenses by Category"),
           ),
         ),
 
         SizedBox(height: 10),
         AppContainer(
-          child: Column(
-            children: [
-              _generateTitle("Incomes by Category"),
-              SizedBox(height: 16),
-              IncomesBarChart(
-                  forPreviousMonth: month == "current" ? false : true),
-            ],
+          child: IncomesChart(
+            forPreviousMonth: month == "current" ? false : true,
+            title: _generateTitle("Incomes by Category"),
           ),
         ),
 

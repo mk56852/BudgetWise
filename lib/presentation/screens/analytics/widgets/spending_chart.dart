@@ -1,96 +1,243 @@
+import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart';
+import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class SpendingBarChart extends StatelessWidget {
+class ExpenseCharts extends StatefulWidget {
   final bool forPreviousMonth;
-  const SpendingBarChart({super.key, this.forPreviousMonth = false});
+  final Widget title;
+  const ExpenseCharts(
+      {super.key, required this.forPreviousMonth, required this.title});
 
   @override
-  Widget build(BuildContext context) {
-    final List<String> shortNames = [
+  State<ExpenseCharts> createState() => _ExpenseChartsState();
+}
+
+class _ExpenseChartsState extends State<ExpenseCharts> {
+  late List<String> shortNames;
+  late Map<String, double> items;
+  bool isBarChart = false;
+  @override
+  void initState() {
+    shortNames = [
       "F",
       "T",
       "H",
       "S",
       "E",
-      "HO",
+      "HE",
       "TR",
       "ED",
       "O",
     ];
+    _fetchData();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(ExpenseCharts oldWidget) {
+    if (oldWidget.forPreviousMonth != widget.forPreviousMonth) {
+      _fetchData();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _fetchData() {
     DateTime today = DateTime.now();
     int month = today.month;
     int year = today.year;
-    if (forPreviousMonth) {
+    if (widget.forPreviousMonth) {
       year = month == 1 ? year - 1 : year;
       month = month == 1 ? 12 : month - 1;
     }
-    Map<String, double> items = AppServices.transactionService
-        .getTotalExpensesForCategories(year, month);
+    setState(() {
+      items = AppServices.transactionService
+          .getTotalExpensesForCategories(year, month);
+    });
+  }
 
-    return Column(
-      children: [
-        AspectRatio(
-          aspectRatio: 1.5,
-          child: BarChart(
-            BarChartData(
-              barGroups: List.generate(AppCategories.length, (index) {
-                return BarChartGroupData(
-                  x: index,
-                  barRods: [
-                    BarChartRodData(
-                      toY: items[AppCategories[index]] ?? 0,
-                      color: Colors.white,
-                      width: 12,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ],
-                );
-              }),
-              titlesData: FlTitlesData(
-                leftTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= 0 &&
-                          value.toInt() < AppCategories.length) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            shortNames[value.toInt()], // Using short names
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
+  void updateState(bool flag) {
+    if (flag != isBarChart) {
+      setState(() {
+        isBarChart = flag;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      // Centering the widget
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(child: widget.title),
+              AppIconButton(
+                  icon: Icons.bar_chart,
+                  onTap: () => updateState(true),
+                  text: ""),
+              SizedBox(
+                width: 5,
               ),
-              borderData: FlBorderData(show: false),
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                getDrawingHorizontalLine: (value) {
-                  return FlLine(color: Colors.white70, strokeWidth: 0.2);
-                },
-              ),
-            ),
+              AppIconButton(
+                  icon: Icons.radar, onTap: () => updateState(false), text: "")
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        CategoryLegend(),
-      ],
+          SizedBox(height: 16),
+          AspectRatio(
+            aspectRatio: 1.3,
+            child: items == null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.receipt_long,
+                            size: 80,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "No records yet",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : isBarChart
+                    ? BarChart(
+                        BarChartData(
+                          barGroups:
+                              List.generate(AppCategories.length, (index) {
+                            return BarChartGroupData(
+                              x: index,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: items[AppCategories[index]] ?? 0,
+                                  color: Colors.white, // Updated bar color
+                                  width: 12,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ],
+                            );
+                          }),
+                          titlesData: FlTitlesData(
+                            leftTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (value, meta) {
+                                  if (value.toInt() >= 0 &&
+                                      value.toInt() < AppCategories.length) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        shortNames[
+                                            value.toInt()], // Using short names
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ),
+                          ),
+                          borderData: FlBorderData(show: false),
+                          gridData: FlGridData(
+                            drawVerticalLine: false,
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                  color: Colors.white70, strokeWidth: 0.2);
+                            },
+                          ),
+                        ),
+                      )
+                    : RadarChart(
+                        RadarChartData(
+                          dataSets: [
+                            RadarDataSet(
+                              dataEntries:
+                                  List.generate(AppCategories.length, (index) {
+                                return RadarEntry(
+                                  value: items[AppCategories[index]] ?? 0,
+                                );
+                              }),
+                              borderColor: Colors.white,
+                              borderWidth: 1,
+                              fillColor: Colors.blue.withOpacity(0.25),
+                            ),
+                          ],
+                          radarTouchData: RadarTouchData(
+                            touchCallback: (FlTouchEvent event, response) {
+                              if (response != null &&
+                                  response.touchedSpot != null) {
+                                final entry =
+                                    response.touchedSpot!.touchedRadarEntry;
+                                final category = AppCategories[response
+                                    .touchedSpot!.touchedRadarEntryIndex];
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: AppColors.containerColor2,
+                                    title: Text(
+                                      category,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    content: Text(
+                                        '${entry.value.toStringAsFixed(2)} DT',
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          radarBackgroundColor: Colors.transparent,
+                          radarBorderData:
+                              BorderSide(color: Colors.white70, width: 2),
+                          titlePositionPercentageOffset: 0.2,
+                          titleTextStyle: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          getTitle: (index, angle) {
+                            return RadarChartTitle(
+                              text: shortNames[index],
+                              angle: angle,
+                            );
+                          },
+                          tickCount: 4,
+                          ticksTextStyle: const TextStyle(
+                              color: Colors.white70, fontSize: 10),
+                          tickBorderData:
+                              BorderSide(color: Colors.white70, width: 0.5),
+                          gridBorderData:
+                              BorderSide(color: Colors.white70, width: 0.5),
+                        ),
+                      ),
+          ),
+          const SizedBox(height: 8),
+          CategoryLegend(),
+        ],
+      ),
     );
   }
 }
