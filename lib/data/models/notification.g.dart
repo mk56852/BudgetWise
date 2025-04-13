@@ -19,11 +19,10 @@ class AppNotificationAdapter extends TypeAdapter<AppNotification> {
     return AppNotification(
       id: fields[0] as String,
       type: fields[1] as NotificationType,
-      message: fields[2] as String,
       objectId: fields[4] as String,
       scheduledTime: fields[3] as DateTime?,
       isRead: fields[5] as bool,
-    );
+    )..message = fields[2] as String?;
   }
 
   @override

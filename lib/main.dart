@@ -98,20 +98,9 @@ void main() async {
   if (AppServices.budgetService.getBudget() != null) {
     AppServices.analyticsService.fixAnalytics();
   }
+  NotificationManager manager = NotificationManager();
+  manager.checkAllNotification();
 
-  AppServices.notificationService.addNotification(AppNotification(
-      id: "3",
-      isRead: true,
-      type: NotificationType.AnalyticFileGeneration,
-      message: "This notifcation is just for testing behavior",
-      objectId: "objID"));
-  AppServices.notificationService.addNotification(AppNotification(
-      id: "4",
-      isRead: false,
-      type: NotificationType.SavingGoalDeadline,
-      message:
-          "this is the second test notification we need to check if overflow is updated",
-      objectId: "objID"));
   runApp(MyApp());
 }
 

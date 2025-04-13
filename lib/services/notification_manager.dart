@@ -1,3 +1,7 @@
+import 'package:budget_wise/data/models/notification.dart';
+import 'package:budget_wise/data/models/savings_goal.dart';
+import 'package:budget_wise/data/models/transaction.dart';
+import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -100,5 +104,44 @@ class NotificationManager {
 
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
+  }
+
+  void checkAllNotification() {
+    List<AppNotification> existingNotif =
+        AppServices.notificationService.getAllNotifications();
+    checkSavingsGoalDeadlines(existingNotif);
+    checkTransactionDeadlines(existingNotif);
+  }
+
+  void checkSavingsGoalDeadlines(List<AppNotification> existingNotif) {
+    DateTime now = DateTime.now();
+    List<SavingsGoal> savings =
+        AppServices.savingsGoalService.getAllSavingsGoals();
+    for (var saving in savings) {
+      if (saving.deadline != null &&
+          saving.deadline!.isBefore(now) &&
+          !saving.isAchieved) {
+        AppNotification notification = AppNotification.fromSavings(saving);
+        if (!existingNotif.contains(notification)) {
+          // 📣 Create a new notification if it doesn't exist
+          AppServices.notificationService.addNotification(notification);
+        }
+      }
+    }
+  }
+
+  void checkTransactionDeadlines(List<AppNotification> existingNotif) {
+    DateTime now = DateTime.now();
+    List<Transaction> transactions =
+        AppServices.transactionService.getNotAchievedTransaction();
+    for (var transaction in transactions) {
+      if (transaction.date.isBefore(now)) {
+        AppNotification notification =
+            AppNotification.fromTransaction(transaction);
+        if (!existingNotif.contains(notification)) {
+          AppServices.notificationService.addNotification(notification);
+        }
+      }
+    }
   }
 }

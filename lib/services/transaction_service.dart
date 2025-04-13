@@ -72,6 +72,9 @@ class TransactionService {
     _transactionRepository.addTransaction(transaction);
   }
 
+  Transaction? getTransactionById(String id) {
+    return _transactionRepository.getTransaction(id);
+  }
   /***
    * Function For period of time
    */
@@ -327,5 +330,13 @@ class TransactionService {
     }
 
     return incomeCategory;
+  }
+
+  List<Transaction> getNotAchievedTransaction() {
+    List<Transaction> allTransactions =
+        _transactionRepository.getAllTransactions();
+    return allTransactions
+        .where((transaction) => !transaction.isAchieved)
+        .toList();
   }
 }
