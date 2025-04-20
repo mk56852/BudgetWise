@@ -1,6 +1,7 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/goal_progress.dart';
 import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
+import 'package:budget_wise/presentation/sharedwidgets/vertical_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/services/app_services.dart';
@@ -17,6 +18,8 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
   List<SavingsGoal> _allGoals = [];
   List<SavingsGoal> _filteredGoals = [];
   bool _isLoading = false;
+  int selectedIndex = 0;
+  List<String> priorities = ["All", "High", "Medium", "Low"];
 
   // Filtering options:
   String _selectedPriorityFilter = "All";
@@ -103,23 +106,26 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
             ),
           ),
         ),
-        SizedBox(height: 24),
-        Text(
-          'Filter by priority:',
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 18),
-        ),
-        // Filtering UI
-        SizedBox(height: 16),
-        AppToggleButton(
-            equalSize: true,
-            items: ["All", "High", "Medium", "Low"],
-            onSelected: (item) {
+        SizedBox(height: 34),
+
+        VerticalToggleButton(
+            items: [
+              "All Goals",
+              "High Priority Goal",
+              "Medium Priority Goal",
+              "Low Priority Goal"
+            ],
+            onTap: (index) {
               setState(() {
-                _selectedPriorityFilter = item;
+                _selectedPriorityFilter = priorities[index];
+                selectedIndex = index;
               });
               _applyFilters();
-            }),
-
+            },
+            selectedIndex: selectedIndex),
+        SizedBox(
+          height: 10,
+        ),
         // Goals List
         _isLoading
             ? const Center(child: CircularProgressIndicator())

@@ -3,6 +3,7 @@ import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/recent_transactions.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/widgets/transaction_filter_modal.dart';
+import 'package:budget_wise/presentation/sharedwidgets/vertical_toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -136,41 +137,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           ),
         ),
         SizedBox(height: 24),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(2, (index) {
-            final items = ["Expense Transactions", "Income Transactions"];
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedIndex = index;
-                  _updateData(); // This will keep the filters
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                padding: const EdgeInsets.all(12.0),
-                width: MediaQuery.of(context).size.width * 0.6,
-                decoration: BoxDecoration(
-                  color: selectedIndex == index
-                      ? Colors.white.withOpacity(0.2)
-                      : Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Text(
-                  items[index],
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: selectedIndex == index
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.7),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
+        VerticalToggleButton(
+            items: ["Expense Transactions", "Income Transactions"],
+            onTap: (index) {
+              setState(() {
+                selectedIndex = index;
+                _updateData(); // This will keep the filters
+              });
+            },
+            selectedIndex: selectedIndex),
         SizedBox(height: 5),
         Row(mainAxisAlignment: MainAxisAlignment.end, children: [
           InkWell(

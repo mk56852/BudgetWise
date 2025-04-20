@@ -9,7 +9,7 @@ import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
-import 'package:budget_wise/presentation/sharedwidgets/toggle_button.dart';
+import 'package:budget_wise/presentation/sharedwidgets/vertical_toggle_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -26,10 +26,12 @@ class AnalyticsScreen extends StatefulWidget {
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   String month = "current";
+  int selectedIndex = 0;
 
-  void switchAnalytics() {
+  void switchAnalytics(index) {
     setState(() {
       month = month == "current" ? "previous" : "current";
+      selectedIndex = index;
     });
   }
 
@@ -85,16 +87,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ),
         ),
-        SizedBox(height: 16),
-        AppToggleButton(
-            equalSize: true,
-            items: ["Current Month", "Last Month"],
-            onSelected: (item) => switchAnalytics()),
-        SizedBox(height: 16),
-        SectionTitle(
-          text: "General Information",
-        ),
-        SizedBox(height: 16),
+        SizedBox(height: 26),
+        VerticalToggleButton(
+            selectedIndex: selectedIndex,
+            items: ["Current Month Analytics", "Last Month Analytics"],
+            onTap: (index) => switchAnalytics(index)),
+        SizedBox(height: 28),
 
         Animate(
           effects: [

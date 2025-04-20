@@ -67,23 +67,37 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.transparent,
-        body: Container(
-          alignment: Alignment.topLeft,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.darkBlueColor,
-                Colors.black,
-              ],
+        body: LayoutBuilder(
+          builder: (context, constraints) => Container(
+            alignment: Alignment.topLeft,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.darkBlueColor,
+                  Colors.black,
+                ],
+              ),
             ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-              child: SingleChildScrollView(child: _screens[_currentIndex]),
+            child: SafeArea(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                        height: constraints.maxHeight,
+                        width: constraints.maxWidth,
+                        child: Opacity(
+                          opacity: 0.06,
+                          child: Image.asset("assets/images/pngegg.png",
+                              fit: BoxFit.fitHeight),
+                        )),
+                    SingleChildScrollView(child: _screens[_currentIndex]),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -272,22 +286,37 @@ class MainContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Container(
-        alignment: Alignment.topLeft,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerRight,
-            end: Alignment.centerLeft,
-            colors: [
-              AppColors.darkBlueColor,
-              Colors.black,
-            ],
+      body: LayoutBuilder(
+        builder: (context, constraints) => Container(
+          alignment: Alignment.topLeft,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+              colors: [
+                AppColors.darkBlueColor,
+                Colors.black,
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-            child: SingleChildScrollView(child: child),
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+              child: Stack(
+                children: [
+                  SizedBox(
+                      height: constraints.maxHeight,
+                      width: constraints.maxWidth,
+                      child: Opacity(
+                        opacity: 0.06,
+                        child: Image.asset("assets/images/pngegg.png",
+                            fit: BoxFit.fitHeight),
+                      )),
+                  SingleChildScrollView(child: child),
+                ],
+              ),
+            ),
           ),
         ),
       ),

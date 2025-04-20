@@ -47,8 +47,8 @@ class _ToggleButtonState extends State<AppToggleButton> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: isSelected
-                  ? Colors.white.withOpacity(0.9)
-                  : AppColors.containerColor2,
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.black),
             ),
@@ -57,7 +57,7 @@ class _ToggleButtonState extends State<AppToggleButton> {
               item,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
