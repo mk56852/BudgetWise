@@ -46,7 +46,9 @@ class _ToggleButtonState extends State<AppToggleButton> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.white : AppColors.containerColor2,
+              color: isSelected
+                  ? Colors.white.withOpacity(0.9)
+                  : AppColors.containerColor2,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.black),
             ),

@@ -132,8 +132,9 @@ class NotificationManager {
 
   void checkTransactionDeadlines(List<AppNotification> existingNotif) {
     DateTime now = DateTime.now();
-    List<Transaction> transactions =
-        AppServices.transactionService.getNotAchievedTransaction();
+    List<Transaction> transactions = AppServices.transactionService
+        .getNotAchievedTransaction(
+            AppServices.transactionService.getAllTransactions());
     for (var transaction in transactions) {
       if (transaction.date.isBefore(now) && !transaction.isAchieved) {
         AppNotification notification =

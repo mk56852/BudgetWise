@@ -108,4 +108,20 @@ class BudgetService {
 
     return latestEntries.values.toList();
   }
+
+  double getLatestBudgetHistoryAmountForMonth(int year, int month) {
+    Budget? budget = getBudget();
+    if (budget == null) return 0;
+
+    List<BudgetHistoryEntry> entries = budget.history
+        .where((entry) =>
+            entry.updatedAt.year == year && entry.updatedAt.month == month)
+        .toList();
+
+    if (entries.isEmpty) return 0;
+
+    entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    return entries.first.amount;
+  }
 }

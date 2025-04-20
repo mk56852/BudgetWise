@@ -1,15 +1,16 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart';
+import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseCharts extends StatefulWidget {
-  final bool forPreviousMonth;
+  final List<Transaction> transactions;
   final Widget title;
   const ExpenseCharts(
-      {super.key, required this.forPreviousMonth, required this.title});
+      {super.key, required this.transactions, required this.title});
 
   @override
   State<ExpenseCharts> createState() => _ExpenseChartsState();
@@ -32,30 +33,9 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
       "ED",
       "O",
     ];
-    _fetchData();
+    items = AppServices.transactionService
+        .getTotalExpensesForCategoriesFromList(widget.transactions);
     super.initState();
-  }
-
-  @override
-  void didUpdateWidget(ExpenseCharts oldWidget) {
-    if (oldWidget.forPreviousMonth != widget.forPreviousMonth) {
-      _fetchData();
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _fetchData() {
-    DateTime today = DateTime.now();
-    int month = today.month;
-    int year = today.year;
-    if (widget.forPreviousMonth) {
-      year = month == 1 ? year - 1 : year;
-      month = month == 1 ? 12 : month - 1;
-    }
-    setState(() {
-      items = AppServices.transactionService
-          .getTotalExpensesForCategories(year, month);
-    });
   }
 
   void updateState(bool flag) {

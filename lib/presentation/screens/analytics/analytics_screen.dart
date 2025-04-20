@@ -1,9 +1,11 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
 import 'package:budget_wise/data/models/savings_goal.dart';
+import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/budget_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
+import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
@@ -34,9 +36,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     DateTime today = DateTime.now();
+    int previousMonth = today.month == 1 ? 12 : today.month - 1;
+    int previousYear = today.month == 1 ? today.year - 1 : today.year;
+
     double budgetAmount = month == "current"
         ? AppServices.budgetService.getBudget()!.amount
-        : AppServices.analyticsService.getCurrentMonthAnalytics()!.totalBudget;
+        : AppServices.budgetService
+            .getLatestBudgetHistoryAmountForMonth(previousYear, previousMonth);
     double totalSaves = month == "current"
         ? AppServices.savingsGoalService.getAllSavedAmount()
         : AppServices.analyticsService.getCurrentMonthAnalytics()!.savedForGoal;
@@ -47,17 +53,24 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         .getAllSavingsGoals()
         .where((goal) => goal.isAchieved)
         .length;
-    double totalExpense = month == "current"
-        ? AppServices.transactionService
-            .calculateTotalExpensesByMonth(today.year, today.month)
-        : AppServices.analyticsService.getCurrentMonthAnalytics()!.expenseTotal;
-    double totalIncome = month == "current"
-        ? AppServices.transactionService
-            .calculateTotalIncomeByMonth(today.year, today.month)
-        : AppServices.analyticsService.getCurrentMonthAnalytics()!.incomeTotal;
 
-    int previousMonth = today.month == 1 ? 12 : today.month - 1;
-    int previousYear = today.month == 1 ? today.year - 1 : today.year;
+    List<Transaction> transactions = AppServices.transactionService
+        .getAllTranasactionsForMonth(
+            month == "current" ? today.year : previousYear,
+            month == "current" ? today.month : previousMonth);
+
+    List<Transaction> achievedTransaction =
+        AppServices.transactionService.getAchievedTransaction(transactions);
+    List<Transaction> notAchived =
+        AppServices.transactionService.getNotAchievedTransaction(transactions);
+    List<Transaction> expenseTransactions = AppServices.transactionService
+        .getExpensesTransactionFromList(achievedTransaction);
+    List<Transaction> incomeTransactions = AppServices.transactionService
+        .getIncomesTransactionFromList(achievedTransaction);
+    double totalExpense = AppServices.transactionService
+        .calculateAmountFromList(expenseTransactions);
+    double totalIncome = AppServices.transactionService
+        .calculateAmountFromList(incomeTransactions);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +91,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             items: ["Current Month", "Last Month"],
             onSelected: (item) => switchAnalytics()),
         SizedBox(height: 16),
+        SectionTitle(
+          text: "General Information",
+        ),
+        SizedBox(height: 16),
+
         Animate(
           effects: [
             FadeEffect(duration: 400.ms),
@@ -93,19 +111,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           child: Row(children: [
             Expanded(
                 child: InfoCard(
-              title: "Expenses",
-              subTitle: "Total expense",
-              body: "$totalExpense DT",
-              graphColor: Colors.blue.withOpacity(0.5),
+              icon: Icons.done,
+              title: "Achieved Transactions",
+              subTitle: "Number of achieved transaction",
+              body: achievedTransaction.length.toString() + " Trans",
               isPositive: false,
             )),
             SizedBox(width: 6),
             Expanded(
                 child: InfoCard(
-              title: "Incomes",
-              subTitle: "Total incomes",
-              body: "$totalIncome DT",
-              graphColor: Colors.blue.withOpacity(0.5),
+              icon: Icons.not_interested_outlined,
+              title: "Not achieved Transactions",
+              subTitle: "Number of not achieved transaction",
+              body: notAchived.length.toString() + " Trans",
               isPositive: true,
             )),
           ]),
@@ -114,6 +132,77 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           height: 5,
         ),
         Animate(
+          effects: [
+            FadeEffect(duration: 400.ms),
+            SlideEffect(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+              duration: 400.ms,
+              curve: Curves.easeOut,
+            ),
+          ],
+          onPlay: (controller) => controller.forward(),
+          delay: (200).ms,
+          child: Row(children: [
+            Expanded(
+                child: InfoCard(
+              icon: Icons.upload,
+              title: "Expenses Number",
+              subTitle: "Number of expense transactions",
+              body: expenseTransactions.length.toString() + " Tras",
+              isPositive: false,
+            )),
+            SizedBox(width: 6),
+            Expanded(
+                child: InfoCard(
+              icon: Icons.download,
+              title: "Incomes Number",
+              subTitle: "Number of income transactions",
+              body: incomeTransactions.length.toString() + " Tras",
+              isPositive: true,
+            )),
+          ]),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Animate(
+          effects: [
+            FadeEffect(duration: 400.ms),
+            SlideEffect(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+              duration: 400.ms,
+              curve: Curves.easeOut,
+            ),
+          ],
+          onPlay: (controller) => controller.forward(),
+          delay: (200).ms,
+          child: Row(children: [
+            Expanded(
+                child: InfoCard(
+              icon: Icons.trending_down,
+              title: "Expenses",
+              subTitle: "Total expense amount",
+              body: "$totalExpense DT",
+              isPositive: false,
+            )),
+            SizedBox(width: 6),
+            Expanded(
+                child: InfoCard(
+              icon: Icons.trending_up,
+              title: "Incomes",
+              subTitle: "Total incomes",
+              body: "$totalIncome DT",
+              isPositive: true,
+            )),
+          ]),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+
+        /*    Animate(
             effects: [
               FadeEffect(duration: 400.ms),
               SlideEffect(
@@ -129,25 +218,36 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 Expanded(
                     child: InfoCard(
+                        icon: Icons.savings,
                         title: "Savings Goal",
                         subTitle: "Total Savings goal",
                         body: goalsNumber.toString() + " Goals",
-                        graphColor: Colors.blue.withOpacity(0.5),
                         isPositive: true)),
                 SizedBox(width: 6),
                 Expanded(
                     child: InfoCard(
+                        icon: Icons.done,
                         title: "Achieved Goals",
                         subTitle: "Total achieved goal",
                         body: achievedGoal.toString() + " Goals",
-                        graphColor: Colors.blue.withOpacity(0.5),
                         isPositive: true))
               ],
-            )),
+            )),*/
+        SizedBox(
+          height: 15,
+        ),
+
+        SectionTitle(
+          text: "Budget Analytics",
+        ),
+
+        SizedBox(
+          height: 15,
+        ),
+        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
         SizedBox(
           height: 5,
         ),
-
         Animate(
             effects: [
               FadeEffect(duration: 400.ms),
@@ -173,15 +273,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 )
               ],
             ))),
-        SizedBox(height: 5),
-        BudgetWidget(availableBudget: budgetAmount, savedForGoals: totalSaves),
-        SizedBox(height: 5),
-        if (month == "current") SavingsGoalsProgress(),
+        SizedBox(height: 16),
+        SectionTitle(
+          text: "Transaction Analytics",
+        ),
+        SizedBox(height: 16),
 
         if (month == "current") SizedBox(height: 10),
         AppContainer(
           child: ExpenseCharts(
-            forPreviousMonth: month == "current" ? false : true,
+            transactions: expenseTransactions,
             title: _generateTitle("Expenses by Category"),
           ),
         ),
@@ -189,7 +290,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         SizedBox(height: 10),
         AppContainer(
           child: IncomesChart(
-            forPreviousMonth: month == "current" ? false : true,
+            transactions: incomeTransactions,
             title: _generateTitle("Incomes by Category"),
           ),
         ),

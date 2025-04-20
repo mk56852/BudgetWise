@@ -134,6 +134,14 @@ class TransactionService {
     return allTransactions.fold(0.0, (sum, item) => sum + item.amount);
   }
 
+  double calculateIncomes(List<Transaction> incomes) {
+    return incomes.fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double calculateExpense(List<Transaction> expenses) {
+    return expenses.fold(0.0, (sum, item) => sum + item.amount);
+  }
+
   /***
    * Functions By Month
    */
@@ -309,6 +317,48 @@ class TransactionService {
     return categoryExpenses;
   }
 
+  Map<String, double> getTotalExpensesForCategoriesFromList(
+      List<Transaction> transactions) {
+    Map<String, double> categoryExpenses = {};
+
+    // Loop through all transactions
+    for (var transaction in transactions) {
+      // Check if the transaction is an expense
+      if (transaction.type == "expense") {
+        // If the category exists, add the amount, otherwise initialize it
+        if (categoryExpenses.containsKey(transaction.categoryId)) {
+          categoryExpenses[transaction.categoryId!] =
+              categoryExpenses[transaction.categoryId!]! + transaction.amount;
+        } else {
+          categoryExpenses[transaction.categoryId!] = transaction.amount;
+        }
+      }
+    }
+
+    return categoryExpenses;
+  }
+
+  Map<String, double> getTotalIncomesForCategoriesFromList(
+      List<Transaction> transactions) {
+    Map<String, double> incomeCategory = {};
+
+    // Loop through all transactions
+    for (var transaction in transactions) {
+      // Check if the transaction is an expense
+      if (transaction.type == "income") {
+        // If the category exists, add the amount, otherwise initialize it
+        if (incomeCategory.containsKey(transaction.categoryId)) {
+          incomeCategory[transaction.categoryId!] =
+              incomeCategory[transaction.categoryId!]! + transaction.amount;
+        } else {
+          incomeCategory[transaction.categoryId!] = transaction.amount;
+        }
+      }
+    }
+
+    return incomeCategory;
+  }
+
   Map<String, double> getTotalIncomesForCategories(int? year, int? month) {
     List<Transaction> transactions;
     if (year != null) {
@@ -336,11 +386,34 @@ class TransactionService {
     return incomeCategory;
   }
 
-  List<Transaction> getNotAchievedTransaction() {
-    List<Transaction> allTransactions =
-        _transactionRepository.getAllTransactions();
+  List<Transaction> getNotAchievedTransaction(
+      List<Transaction> allTransactions) {
     return allTransactions
         .where((transaction) => !transaction.isAchieved)
         .toList();
+  }
+
+  List<Transaction> getAchievedTransaction(List<Transaction> allTransactions) {
+    return allTransactions
+        .where((transaction) => transaction.isAchieved)
+        .toList();
+  }
+
+  List<Transaction> getExpensesTransactionFromList(
+      List<Transaction> transacations) {
+    return transacations
+        .where((transaction) => transaction.type == "expense")
+        .toList();
+  }
+
+  List<Transaction> getIncomesTransactionFromList(
+      List<Transaction> transacations) {
+    return transacations
+        .where((transaction) => transaction.type == "income")
+        .toList();
+  }
+
+  double calculateAmountFromList(List<Transaction> transactions) {
+    return transactions.fold(0.0, (sum, item) => sum + item.amount);
   }
 }
