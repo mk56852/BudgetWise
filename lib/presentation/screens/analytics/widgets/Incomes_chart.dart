@@ -1,6 +1,7 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart';
 import 'package:budget_wise/data/models/transaction.dart';
+import 'package:budget_wise/presentation/screens/analytics/widgets/category_amount.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -46,6 +47,18 @@ class _IncomesChartState extends State<IncomesChart> {
   }
 
   @override
+  void didUpdateWidget(covariant IncomesChart oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactions != widget.transactions) {
+      setState(() {
+        items = AppServices.transactionService
+            .getTotalIncomesForCategoriesFromList(widget.transactions);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       // Centering the widget
@@ -65,6 +78,24 @@ class _IncomesChartState extends State<IncomesChart> {
               AppIconButton(
                   icon: Icons.radar, onTap: () => updateState(false), text: "")
             ],
+          ),
+          SizedBox(
+            height: 150,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items.entries
+                  .map((item) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                        child: CategoryWidget(
+                          amount: item.value,
+                          name: item.key,
+                          icon: incomeSourcesIcon[item.key]!,
+                          height: 150,
+                          width: 125,
+                        ),
+                      ))
+                  .toList(),
+            ),
           ),
           SizedBox(height: 16),
           AspectRatio(

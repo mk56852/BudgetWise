@@ -24,7 +24,7 @@ class VerticalToggleButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: selectedIndex == index
                   ? Colors.white.withOpacity(0.2)
-                  : Colors.white.withOpacity(0.05),
+                  : Colors.white.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12.0),
             ),
             child: Text(

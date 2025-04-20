@@ -34,9 +34,6 @@ import 'data/models/category.dart';
 import 'data/models/savings_goal.dart';
 import 'data/models/analytics.dart';
 import 'data/models/settings.dart';
-import 'data/models/expense_limit.dart'; // Import the ExpenseLimit model
-import 'data/repositories/expense_limit_repository.dart'; // Import the ExpenseLimitRepository
-import 'services/expense_limit_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -61,7 +58,7 @@ void main() async {
   Hive.registerAdapter(AnalyticsAdapter());
   Hive.registerAdapter(SettingsAdapter());
   Hive.registerAdapter(BudgetHistoryEntryAdapter());
-  Hive.registerAdapter(ExpenseLimitAdapter());
+
   Hive.registerAdapter(NotificationTypeAdapter());
 
   await Hive.openBox<User>('users');
@@ -73,7 +70,6 @@ void main() async {
   await Hive.openBox<AppNotification>('notifications');
   await Hive.openBox<Analytics>('analytics');
   await Hive.openBox<Settings>('settings');
-  await Hive.openBox<ExpenseLimit>('expense_limits');
 
   final userRepository = UserRepository();
   final budgetRepository = BudgetRepository();
@@ -83,7 +79,6 @@ void main() async {
   final notificationRepository = NotificationRepository();
   final analyticsRepository = AnalyticsRepository();
   final settingsRepository = SettingsRepository();
-  final expenseLimitRepository = ExpenseLimitRepository();
 
   AppServices.userService = UserService(userRepository);
   AppServices.budgetService = BudgetService(budgetRepository);
@@ -94,7 +89,7 @@ void main() async {
   AppServices.notificationService = NotificationService(notificationRepository);
   AppServices.analyticsService = AnalyticsService(analyticsRepository);
   AppServices.settingsService = SettingsService(settingsRepository);
-  AppServices.expenseLimitService = ExpenseLimitService(expenseLimitRepository);
+
   if (AppServices.budgetService.getBudget() != null) {
     AppServices.analyticsService.fixAnalytics();
   }

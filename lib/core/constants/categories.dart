@@ -12,6 +12,18 @@ List<String> AppCategories = [
   "Othor"
 ];
 
+Map<String, IconData> AppCategoriesIcon = {
+  "Food & Dining": Icons.restaurant,
+  "Transport": Icons.directions_car,
+  "Housing": Icons.home,
+  "Entertainment": Icons.movie_creation,
+  "Shopping": Icons.shopping_cart,
+  "Health & Wellness": Icons.local_hospital,
+  "Travel": Icons.flight,
+  "Education": Icons.school,
+  "Othor": Icons.help_outline
+};
+
 List<String> incomeSources = [
   "Salary",
   "Freelance",
@@ -22,6 +34,17 @@ List<String> incomeSources = [
   "Commissions",
   "Othor"
 ];
+
+Map<String, IconData> incomeSourcesIcon = {
+  "Salary": Icons.monetization_on,
+  "Freelance": Icons.work_outline,
+  "Business": Icons.business_center,
+  "Investments": Icons.show_chart,
+  "Rental": Icons.home_work,
+  "Interest": Icons.attach_money,
+  "Commissions": Icons.card_giftcard,
+  "Othor": Icons.help_outline,
+};
 
 class Category {
   final String name;

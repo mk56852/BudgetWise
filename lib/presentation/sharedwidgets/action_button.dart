@@ -59,8 +59,8 @@ class AppIconButton extends StatelessWidget {
         InkWell(
           onTap: () => onTap(),
           child: Container(
-            height: 50,
-            width: 50,
+            height: 40,
+            width: 40,
             decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.25),
                 borderRadius: BorderRadius.circular(10)),

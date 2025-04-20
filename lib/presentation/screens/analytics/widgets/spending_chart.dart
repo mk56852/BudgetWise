@@ -1,6 +1,7 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart';
 import 'package:budget_wise/data/models/transaction.dart';
+import 'package:budget_wise/presentation/screens/analytics/widgets/category_amount.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -47,10 +48,23 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
   }
 
   @override
+  void didUpdateWidget(covariant ExpenseCharts oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactions != widget.transactions) {
+      setState(() {
+        items = AppServices.transactionService
+            .getTotalExpensesForCategoriesFromList(widget.transactions);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       // Centering the widget
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -67,7 +81,28 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                   icon: Icons.radar, onTap: () => updateState(false), text: "")
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(
+            height: 5,
+          ),
+          SizedBox(
+            height: 150,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items.entries
+                  .map((item) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                        child: CategoryWidget(
+                          amount: item.value,
+                          name: item.key,
+                          icon: AppCategoriesIcon[item.key]!,
+                          height: 150,
+                          width: 125,
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ),
+          SizedBox(height: 20),
           AspectRatio(
             aspectRatio: 1.3,
             child: items == null

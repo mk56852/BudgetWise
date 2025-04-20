@@ -14,7 +14,6 @@ import 'package:budget_wise/services/app_services.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:budget_wise/data/models/expense_limit.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // Importing ExpenseLimit
 
 class AnalyticsScreen extends StatefulWidget {
@@ -93,7 +92,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             items: ["Current Month Analytics", "Last Month Analytics"],
             onTap: (index) => switchAnalytics(index)),
         SizedBox(height: 28),
-
         Animate(
           effects: [
             FadeEffect(duration: 400.ms),
@@ -234,11 +232,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         SizedBox(
           height: 15,
         ),
-
         SectionTitle(
           text: "Budget Analytics",
         ),
-
         SizedBox(
           height: 15,
         ),
@@ -276,7 +272,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           text: "Transaction Analytics",
         ),
         SizedBox(height: 16),
-
         if (month == "current") SizedBox(height: 10),
         AppContainer(
           child: ExpenseCharts(
@@ -284,7 +279,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             title: _generateTitle("Expenses by Category"),
           ),
         ),
-
         SizedBox(height: 10),
         AppContainer(
           child: IncomesChart(
@@ -292,113 +286,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             title: _generateTitle("Incomes by Category"),
           ),
         ),
-
         SizedBox(height: 16),
-        _generateTitle("Your Monthly Expense Limit"),
-        SizedBox(height: 16),
-        // Added Wrap widget containing appCategoriesWithIcons
-        Center(
-          child: Wrap(
-            runSpacing: 5,
-            spacing: 5,
-            children: [
-              ...appCategoriesWithIcons.map((category) {
-                // Retrieve the expense limits
-                final expenseLimits =
-                    AppServices.expenseLimitService.getExpenseLimits();
-                final limit = expenseLimits
-                    .firstWhere(
-                      (expenseLimit) =>
-                          expenseLimit.categoryName == category.name,
-                      orElse: () =>
-                          ExpenseLimit(categoryName: category.name, limit: 0),
-                    )
-                    .limit;
-
-                return GestureDetector(
-                  onTap: () {
-                    TextEditingController limitController =
-                        TextEditingController(text: limit.toString());
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Container(
-                          height: 400,
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Update Limit for ${category.name}',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 10),
-                              TextField(
-                                controller: limitController,
-                                decoration: InputDecoration(
-                                  labelText: 'Limit',
-                                  border: OutlineInputBorder(),
-                                ),
-                                keyboardType: TextInputType.number,
-                              ),
-                              SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: () {
-                                  double newLimit =
-                                      double.tryParse(limitController.text) ??
-                                          limit;
-
-                                  // Check if the limit already exists
-                                  int index = expenseLimits.indexWhere(
-                                      (e) => e.categoryName == category.name);
-
-                                  if (index != -1) {
-                                    // Update existing limit
-                                    AppServices.expenseLimitService
-                                        .updateExpenseLimit(
-                                            index, category.name, newLimit);
-                                  } else {
-                                    // Add new limit if it doesn't exist
-                                    AppServices.expenseLimitService
-                                        .addExpenseLimit(
-                                      category.name,
-                                      newLimit,
-                                    );
-                                  }
-
-                                  setState(() {
-                                    // Refresh the screen to show updated limits
-                                  });
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Update'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: _CategoryLimitWidget(
-                      name: category.name,
-                      icon: category.icon,
-                      limit: limit, // Set limit from expense limits
-                      usedAmount: AppServices.transactionService
-                              .getTotalExpensesForCategories(
-                                  month == "current"
-                                      ? today.year
-                                      : previousYear,
-                                  month == "current"
-                                      ? today.month
-                                      : previousMonth)[category.name] ??
-                          0 // Retrieve used amount
-                      ),
-                );
-              }).toList(),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -455,67 +343,56 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }) {
     double progress = (limit > 0) ? (usedAmount / limit).clamp(0.0, 1.0) : 0.0;
     bool warning = limit < usedAmount;
-    return Opacity(
-      opacity: available ? 1 : 0.2,
-      child: Container(
-        width: 110,
-        height: 160,
-        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.containerColor2,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              offset: const Offset(0, 1),
-              blurRadius: 4,
-              color: Colors.black.withOpacity(.25),
-            )
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: CircleAvatar(
-                radius: 5,
-                backgroundColor:
-                    warning ? Colors.redAccent : Colors.greenAccent,
-              ),
+    return Container(
+      width: 110,
+      height: 160,
+      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.containerColor2,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: CircleAvatar(
+              radius: 5,
+              backgroundColor: warning ? Colors.redAccent : Colors.greenAccent,
             ),
-            Icon(
-              icon,
+          ),
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 30,
+          ),
+          Text(
+            name,
+            style: TextStyle(
               color: Colors.white,
-              size: 30,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
-            Text(
-              name,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+          ),
+          Text(
+            "\$${usedAmount.toStringAsFixed(0)} / \$${limit.toStringAsFixed(0)}",
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              minHeight: 8,
+              value: progress,
+              backgroundColor: Colors.grey[700],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.blueAccent.withOpacity(0.8),
               ),
             ),
-            Text(
-              "\$${usedAmount.toStringAsFixed(0)} / \$${limit.toStringAsFixed(0)}",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                minHeight: 8,
-                value: progress,
-                backgroundColor: Colors.grey[700],
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.blueAccent.withOpacity(0.8),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

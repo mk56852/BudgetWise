@@ -1,3 +1,4 @@
+import 'package:budget_wise/core/constants/categories.dart';
 import 'package:budget_wise/data/models/budget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -334,8 +335,20 @@ class TransactionService {
         }
       }
     }
+    for (String categ in AppCategories) {
+      if (!categoryExpenses.containsKey(categ)) {
+        categoryExpenses[categ] = 0.0;
+      }
+    }
+    var sortedEntries = categoryExpenses.entries.toList();
 
-    return categoryExpenses;
+// Step 2: Sort the list in descending order (highest to lowest)
+    sortedEntries.sort((a, b) => b.value.compareTo(a.value));
+
+// Step 3: Create a new LinkedHashMap to preserve order (optional)
+    final sortedMap = Map.fromEntries(sortedEntries);
+
+    return sortedMap;
   }
 
   Map<String, double> getTotalIncomesForCategoriesFromList(
@@ -355,7 +368,11 @@ class TransactionService {
         }
       }
     }
-
+    for (String categ in incomeSources) {
+      if (!incomeCategory.containsKey(categ)) {
+        incomeCategory[categ] = 0.0;
+      }
+    }
     return incomeCategory;
   }
 
