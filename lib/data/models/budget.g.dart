@@ -20,6 +20,7 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       id: fields[0] as String,
       amount: fields[1] as double,
       lastUpdated: fields[2] as DateTime,
+      lastAmount: fields[4] as double,
       history: (fields[3] as List?)?.cast<BudgetHistoryEntry>(),
     );
   }
@@ -27,7 +28,7 @@ class BudgetAdapter extends TypeAdapter<Budget> {
   @override
   void write(BinaryWriter writer, Budget obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       ..writeByte(2)
       ..write(obj.lastUpdated)
       ..writeByte(3)
-      ..write(obj.history);
+      ..write(obj.history)
+      ..writeByte(4)
+      ..write(obj.lastAmount);
   }
 
   @override

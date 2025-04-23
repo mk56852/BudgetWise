@@ -24,6 +24,12 @@ class BudgetService {
     await _budgetRepository.updateBudget(budget);
   }
 
+  Future<void> updateBudgetWithIds(
+      Budget budget, bool isForSaving, String transactionId) async {
+    await _budgetRepository.updateBudgetWithIds(
+        budget, isForSaving, transactionId);
+  }
+
   Future<void> deleteBudget(String id) async {
     await _budgetRepository.deleteBudget(id);
   }

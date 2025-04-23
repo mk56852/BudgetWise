@@ -1,11 +1,15 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
+import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/data/models/transaction.dart';
+import 'package:budget_wise/presentation/screens/analytics/budget_history_screen.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/Incomes_chart.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/budget_chart.dart';
+import 'package:budget_wise/presentation/screens/analytics/widgets/budget_history_widget.dart';
 import 'package:budget_wise/presentation/screens/analytics/widgets/spending_chart.dart';
 import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
+import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:budget_wise/presentation/sharedwidgets/info_card.dart';
@@ -72,6 +76,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         .calculateAmountFromList(expenseTransactions);
     double totalIncome = AppServices.transactionService
         .calculateAmountFromList(incomeTransactions);
+
+    List<BudgetHistoryEntry> budgetHisto =
+        AppServices.budgetService.getAllHistory().reversed.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,6 +274,27 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 )
               ],
             ))),
+        SizedBox(
+          height: 5,
+        ),
+        AppContainer(
+            child: Column(children: [
+          ...budgetHisto
+              .take(4)
+              .map((item) => BudgetHistoryItem(history: item))
+              .toList(),
+          SizedBox(
+            height: 15,
+          ),
+          AppActionButton(
+              text: "Show All",
+              icon: Icons.list,
+              onTab: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        BudgetHistoryScreen(history: budgetHisto)));
+              })
+        ])),
         SizedBox(height: 16),
         SectionTitle(
           text: "Transaction Analytics",

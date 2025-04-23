@@ -20,19 +20,25 @@ class BudgetHistoryEntryAdapter extends TypeAdapter<BudgetHistoryEntry> {
       amount: fields[0] as double,
       updatedAt: fields[1] as DateTime,
       transactionId: fields[2] as String?,
+      lastAmount: fields[4] as double,
+      isForSavings: fields[3] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BudgetHistoryEntry obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.amount)
       ..writeByte(1)
       ..write(obj.updatedAt)
       ..writeByte(2)
-      ..write(obj.transactionId);
+      ..write(obj.transactionId)
+      ..writeByte(3)
+      ..write(obj.isForSavings)
+      ..writeByte(4)
+      ..write(obj.lastAmount);
   }
 
   @override

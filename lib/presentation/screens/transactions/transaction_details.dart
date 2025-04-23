@@ -152,6 +152,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                 transaction.isAchieved = true;
                 AppServices.transactionService.updateTransaction(transaction);
                 Budget budget = AppServices.budgetService.getBudget()!;
+                budget.lastAmount = budget.amount;
                 if (transaction.type == "income") {
                   budget.amount += transaction.amount;
                 } else {

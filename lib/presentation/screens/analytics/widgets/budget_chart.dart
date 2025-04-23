@@ -34,14 +34,15 @@ class BudgetChart extends StatelessWidget {
       if (budgetHistory.isEmpty) {
         budgetHistory = [
           BudgetHistoryEntry(
-            updatedAt: DateTime(previousYear, previousMonth, 1), // Default date
-            amount: 0.0,
-          ),
+              updatedAt:
+                  DateTime(previousYear, previousMonth, 1), // Default date
+              amount: 0.0,
+              lastAmount: 0),
           BudgetHistoryEntry(
-            updatedAt:
-                DateTime(previousYear, previousMonth, 28), // Default date
-            amount: 0.0,
-          ),
+              updatedAt:
+                  DateTime(previousYear, previousMonth, 28), // Default date
+              amount: 0.0,
+              lastAmount: 0),
         ];
       }
     } else {
@@ -54,7 +55,9 @@ class BudgetChart extends StatelessWidget {
       }
       if (budgetHistory.length == 1 && first != null) {
         budgetHistory.add(BudgetHistoryEntry(
-            amount: first.amount, updatedAt: DateTime.now()));
+            amount: first.amount,
+            updatedAt: DateTime.now(),
+            lastAmount: first.lastAmount));
       }
     }
 
@@ -64,7 +67,7 @@ class BudgetChart extends StatelessWidget {
     budgetHistory.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
 
     return Container(
-      height: 250,
+      height: 200,
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),

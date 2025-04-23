@@ -25,12 +25,10 @@ import 'package:budget_wise/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
-
 import 'data/models/user.dart';
 import 'data/models/budget.dart';
-import 'data/models/money_source.dart';
 import 'data/models/transaction.dart';
-import 'data/models/category.dart';
+
 import 'data/models/savings_goal.dart';
 import 'data/models/analytics.dart';
 import 'data/models/settings.dart';
@@ -50,9 +48,8 @@ void main() async {
 
   Hive.registerAdapter(UserAdapter());
   Hive.registerAdapter(BudgetAdapter());
-  Hive.registerAdapter(MoneySourceAdapter());
   Hive.registerAdapter(TransactionAdapter());
-  Hive.registerAdapter(CategoryAdapter());
+
   Hive.registerAdapter(SavingsGoalAdapter());
   Hive.registerAdapter(AppNotificationAdapter());
   Hive.registerAdapter(AnalyticsAdapter());
@@ -63,9 +60,8 @@ void main() async {
 
   await Hive.openBox<User>('users');
   await Hive.openBox<Budget>('budgets');
-  await Hive.openBox<MoneySource>('money_sources');
+
   await Hive.openBox<Transaction>('transactions');
-  await Hive.openBox<Category>('categories');
   await Hive.openBox<SavingsGoal>('savings_goals');
   await Hive.openBox<AppNotification>('notifications');
   await Hive.openBox<Analytics>('analytics');
@@ -74,7 +70,7 @@ void main() async {
   final userRepository = UserRepository();
   final budgetRepository = BudgetRepository();
   final transactionRepository = TransactionRepository();
-  final categoryRepository = CategoryRepository();
+
   final savingsGoalRepository = SavingsGoalRepository();
   final notificationRepository = NotificationRepository();
   final analyticsRepository = AnalyticsRepository();
@@ -84,7 +80,6 @@ void main() async {
   AppServices.budgetService = BudgetService(budgetRepository);
   AppServices.transactionService =
       TransactionService(transactionRepository, budgetRepository);
-  AppServices.categoryService = CategoryService(categoryRepository);
   AppServices.savingsGoalService = SavingsGoalService(savingsGoalRepository);
   AppServices.notificationService = NotificationService(notificationRepository);
   AppServices.analyticsService = AnalyticsService(analyticsRepository);

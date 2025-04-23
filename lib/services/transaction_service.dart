@@ -68,8 +68,8 @@ class TransactionService {
         transaction.isAchieved = true;
       }
     }
-    budget.updateBudget(newAmount, DateTime.now(), transaction.id);
-    await _budgetRespository.updateBudget(budget);
+    budget.update(newAmount);
+    await _budgetRespository.updateBudgetWithIds(budget, false, transaction.id);
     _transactionRepository.addTransaction(transaction);
   }
 

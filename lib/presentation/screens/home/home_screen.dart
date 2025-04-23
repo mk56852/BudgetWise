@@ -6,6 +6,7 @@ import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/goal_progress.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/recent_transactions.dart';
 import 'package:budget_wise/presentation/screens/notification/notification_screen.dart';
+import 'package:budget_wise/presentation/screens/settings/settings_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
@@ -54,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(height: 20),
         SectionTitle(
           text: "Recent Transactions",
-          onTab: () => print("hello"),
         ),
         TransactionsList(numberOfItems: 4, showAll: () => widget.navigate(1)),
         SizedBox(
@@ -62,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         SectionTitle(
           text: "Savings Goals",
-          onTab: () => print("hello"),
         ),
         SizedBox(height: 12),
         SavingsGoalItems(
@@ -77,13 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          height: 50,
-          width: 50,
-          child: Icon(
-            Icons.calendar_month_rounded,
-            color: Colors.white,
-            size: 30,
+        InkWell(
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => SettingScreen())),
+          child: Container(
+            height: 50,
+            width: 50,
+            child: Hero(
+              tag: "setting",
+              child: Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
           ),
         ),
         InkWell(
@@ -186,8 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
     double? enteredAmount = await showAmountDialog(context);
     if (enteredAmount == null || enteredAmount <= 0) return;
 
-    Budget? budget = AppServices.budgetService.getBudget();
-    budget!.amount = budget.amount - enteredAmount;
+    Budget budget = AppServices.budgetService.getBudget()!;
+    budget.update(budget.amount - enteredAmount);
+
     await AppServices.budgetService.updateBudget(budget);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Amount deleted from budget !")),
@@ -198,8 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
     double? enteredAmount = await showAmountDialog(context);
     if (enteredAmount == null || enteredAmount <= 0) return;
 
-    Budget? budget = AppServices.budgetService.getBudget();
-    budget!.amount = budget.amount + enteredAmount;
+    Budget budget = AppServices.budgetService.getBudget()!;
+    budget.update(budget.amount + enteredAmount);
     await AppServices.budgetService.updateBudget(budget);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Amount Added to budget !")),
@@ -471,6 +478,7 @@ class BudgetChart extends StatelessWidget {
                 0,
                 BudgetHistoryEntry(
                   amount: 0,
+                  lastAmount: 0,
                   updatedAt:
                       firstDate.subtract(Duration(days: missingItems - i)),
                 ),

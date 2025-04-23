@@ -12,7 +12,7 @@ class BudgetRepository {
 
   Future<void> addBudget(Budget budget) async {
     budget.history.add(BudgetHistoryEntry(
-        amount: budget.amount, updatedAt: budget.lastUpdated));
+        amount: budget.amount, updatedAt: budget.lastUpdated, lastAmount: 0));
     await _budgetBox.put(budget.id, budget);
   }
 
@@ -24,7 +24,21 @@ class BudgetRepository {
   Future<void> updateBudget(Budget budget) async {
     budget.lastUpdated = DateTime.now();
     budget.history.add(BudgetHistoryEntry(
-        amount: budget.amount, updatedAt: budget.lastUpdated));
+        amount: budget.amount,
+        updatedAt: budget.lastUpdated,
+        lastAmount: budget.lastAmount));
+    await _budgetBox.put(budget.id, budget);
+  }
+
+  Future<void> updateBudgetWithIds(
+      Budget budget, bool isForSaving, String trasactionId) async {
+    budget.lastUpdated = DateTime.now();
+    budget.history.add(BudgetHistoryEntry(
+        amount: budget.amount,
+        updatedAt: budget.lastUpdated,
+        isForSavings: isForSaving,
+        lastAmount: budget.lastAmount,
+        transactionId: trasactionId));
     await _budgetBox.put(budget.id, budget);
   }
 

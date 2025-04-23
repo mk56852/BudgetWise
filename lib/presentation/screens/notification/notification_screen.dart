@@ -15,6 +15,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
   List<AppNotification> notifications =
       AppServices.notificationService.getAllNotificationsSorted();
 
+  void refresh() {
+    setState(() {
+      notifications =
+          AppServices.notificationService.getAllNotificationsSorted();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MainContainer(
@@ -61,7 +68,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         Column(
             children: notifications
                 .map(
-                  (item) => AppNotificationItem(notification: item),
+                  (item) =>
+                      AppNotificationItem(notification: item, refresh: refresh),
                 )
                 .toList())
       ],

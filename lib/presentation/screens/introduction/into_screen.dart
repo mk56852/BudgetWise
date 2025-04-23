@@ -129,6 +129,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         Budget currentBudget = Budget(
             id: generateId("budget:"),
             amount: double.parse(budgetController.text),
+            lastAmount: 0,
             lastUpdated: DateTime.now());
         AppServices.budgetService.addBudget(currentBudget);
         DateTime time = DateTime.now();

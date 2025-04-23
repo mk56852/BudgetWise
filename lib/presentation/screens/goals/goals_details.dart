@@ -46,12 +46,13 @@ class _GoalsDetailsState extends State<GoalsDetails> {
     }
 
     setState(() {
+      budget.lastAmount = budget.amount;
       budget.amount -= enteredAmount!;
       _goal.savedAmount += enteredAmount;
       if (_goal.savedAmount >= _goal.targetAmount) _goal.isAchieved = true;
     });
 
-    await AppServices.budgetService.updateBudget(budget);
+    await AppServices.budgetService.updateBudgetWithIds(budget, true, _goal.id);
     await AppServices.savingsGoalService.updateSavingsGoal(_goal);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Amount added !")),
@@ -64,14 +65,14 @@ class _GoalsDetailsState extends State<GoalsDetails> {
       bool? returnToBudget = await showReturnToBudgetDialog();
       if (returnToBudget == true) {
         Budget budget = AppServices.budgetService.getBudget()!;
-        budget.amount = budget.amount + _goal.savedAmount;
-        await AppServices.budgetService.updateBudget(budget);
+        budget.update(budget.amount + _goal.savedAmount);
+        await AppServices.budgetService
+            .updateBudgetWithIds(budget, true, _goal.id);
       }
       await AppServices.savingsGoalService.deleteSavingsGoal(_goal.id);
       if (mounted) {
         if (widget.refresh != null) {
           widget.refresh!();
-          print('refresh called');
         }
         Navigator.pop(context);
       }
@@ -128,13 +129,14 @@ class _GoalsDetailsState extends State<GoalsDetails> {
     double? enteredAmount = await showAmountDialog();
     if (enteredAmount == null || enteredAmount <= 0) return;
 
-    Budget? budget = AppServices.budgetService.getBudget();
+    Budget budget = AppServices.budgetService.getBudget()!;
     setState(() {
-      budget!.amount += enteredAmount;
+      budget.lastAmount = budget.amount;
+      budget.amount += enteredAmount;
       _goal.savedAmount -= enteredAmount;
     });
 
-    await AppServices.budgetService.updateBudget(budget!);
+    await AppServices.budgetService.updateBudgetWithIds(budget, true, _goal.id);
     await AppServices.savingsGoalService.updateSavingsGoal(_goal);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Amount back again to budget !")),
