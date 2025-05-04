@@ -203,6 +203,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     final f = DateFormat('dd-MM-yyyy');
     int? daysRest;
     String description = _goal.notes ?? "there is no description";
@@ -222,7 +223,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: Icon(Icons.arrow_back, color: Colors.white, size: 26)),
+                  child: Icon(Icons.arrow_back, size: 26)),
               SizedBox(
                 width: 20,
               ),
@@ -231,7 +232,6 @@ class _GoalsDetailsState extends State<GoalsDetails> {
                   _goal.name,
                   overflow: TextOverflow.visible,
                   style: TextStyle(
-                    color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -241,8 +241,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
           Text(
             "Created at: ${f.format(_goal.createdAt)}",
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 16),
+            style: TextStyle(fontSize: 16),
           ),
           SizedBox(height: 25),
 
@@ -255,18 +254,15 @@ class _GoalsDetailsState extends State<GoalsDetails> {
                   animation: true,
                   percent: (_goal.getProgressPercentage()).toDouble() / 100,
                   circularStrokeCap: CircularStrokeCap.round,
-                  backgroundColor: const Color(0xFF1F1F1F),
-                  linearGradient: const LinearGradient(
-                    colors: [Color(0xFFF0FFFF), Color(0xFF00C6FF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  backgroundColor: theme.brightness == Brightness.dark
+                      ? Color(0xFF1F1F1F)
+                      : Colors.blueGrey,
+                  progressColor: theme.brightness == Brightness.dark
+                      ? Colors.white
+                      : AppColors.darkBlueColor,
                   center: Text(
                     "${_goal.getProgressPercentage()}%",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -278,6 +274,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
                     SizedBox(
                       height: 115,
                       child: _buildSummaryCard(
+                        theme: theme,
                         amount: _goal.savedAmount,
                         title: "Saved Amount",
                         withDetails: false,
@@ -288,6 +285,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
                     SizedBox(
                       height: 115,
                       child: _buildSummaryCard(
+                        theme: theme,
                         amount: _goal.targetAmount,
                         title: "Target Amount",
                         withDetails: false,
@@ -326,8 +324,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
 
           Text(
             'Management:',
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 18),
+            style: TextStyle(fontSize: 18),
           ),
           SizedBox(height: 16),
           Row(
@@ -402,8 +399,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
           Text(
             'Goal Description:',
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 18),
+            style: TextStyle(fontSize: 18),
           ),
           SizedBox(
             height: 16,
@@ -413,7 +409,6 @@ class _GoalsDetailsState extends State<GoalsDetails> {
             children: [
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Colors.white,
               ),
               SizedBox(
                 width: 5,
@@ -421,7 +416,6 @@ class _GoalsDetailsState extends State<GoalsDetails> {
               Expanded(
                 child: Text(
                   description,
-                  style: TextStyle(fontSize: 16, color: Colors.white),
                   overflow: TextOverflow.visible,
                 ),
               ),
@@ -434,7 +428,6 @@ class _GoalsDetailsState extends State<GoalsDetails> {
             children: [
               Icon(
                 Icons.calendar_month_outlined,
-                color: Colors.white,
               ),
               SizedBox(
                 width: 10,
@@ -442,19 +435,16 @@ class _GoalsDetailsState extends State<GoalsDetails> {
               Expanded(
                 child: Text(
                   'Deadline',
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(0.8), fontSize: 18),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               if (_goal.deadline != null)
                 Text(
                   f.format(_goal.deadline!),
-                  style: TextStyle(fontSize: 16, color: Colors.white),
                 )
               else
                 Text(
                   "Deadline not set",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
                 )
             ],
           ),
@@ -464,6 +454,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
   }
 
   Widget _buildSummaryCard({
+    required ThemeData theme,
     required String title,
     required double amount,
     double? percentageChange,
@@ -474,7 +465,9 @@ class _GoalsDetailsState extends State<GoalsDetails> {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.containerColor,
+        color: theme.brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.blueGrey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -486,7 +479,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
             children: [
               Text(
                 title,
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
               percentageChange != null
                   ? Container(
@@ -515,8 +508,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           // Amount
           Text(
             "\$${amount.toStringAsFixed(0)}",
-            style: const TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 

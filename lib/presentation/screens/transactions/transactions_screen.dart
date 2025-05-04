@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/recent_transactions.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
@@ -121,6 +122,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -132,7 +135,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ),
@@ -159,12 +161,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                color: AppColors.containerColor2,
+                color: theme.containerColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.add,
-                color: Colors.white,
                 size: 25,
               ),
             ),
@@ -179,12 +180,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 height: 50,
                 width: 50,
                 decoration: BoxDecoration(
-                  color: AppColors.containerColor2,
+                  color: theme.containerColor2,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   Icons.filter_alt_off_outlined,
-                  color: Colors.white,
                   size: 25,
                 ),
               ),
@@ -199,12 +199,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                color: AppColors.containerColor2,
+                color: theme.containerColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.filter_alt_outlined,
-                color: Colors.white,
                 size: 25,
               ),
             ),
@@ -219,14 +218,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       Icon(
                         Icons.receipt_long,
                         size: 80,
-                        color: Colors.white.withOpacity(0.5),
                       ),
                       SizedBox(height: 10),
                       Text(
                         "No records yet",
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                     ],

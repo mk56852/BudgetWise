@@ -9,4 +9,7 @@ class AppColors {
   static final Color highPriorityColor = Colors.white;
   static final Color meduimPriorityColor = Colors.white54;
   static final Color lowPriorityColor = Colors.blue.shade400;
+  static final Color mainTextColor = Colors.white;
+  static final Color secondTextColor = Colors.grey;
+  static final Color bottomBarColor = Colors.black;
 }

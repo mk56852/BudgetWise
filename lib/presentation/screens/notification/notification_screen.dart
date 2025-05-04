@@ -37,7 +37,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
             },
             child: Icon(
               Icons.arrow_back,
-              color: Colors.white,
             )),
         SizedBox(
           height: 10,
@@ -50,7 +49,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
               tag: "NotifBull",
               child: Icon(
                 Icons.notifications_active,
-                color: Colors.white,
                 size: 48,
               ),
             ),
@@ -59,7 +57,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         Center(
           child: Text(
             "Notifications",
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
           ),
         ),
         SizedBox(

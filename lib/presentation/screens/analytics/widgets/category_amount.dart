@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/material.dart';
 
@@ -19,12 +20,13 @@ class CategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Theme.of(context).extension<AppTheme>()!;
     return Container(
       height: height,
       width: width,
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.containerColor,
+        color: theme.containerColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -39,14 +41,12 @@ class CategoryWidget extends StatelessWidget {
           ),
           Icon(
             icon,
-            color: Colors.white,
             size: 30,
           ),
           Text(
             name,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -55,7 +55,7 @@ class CategoryWidget extends StatelessWidget {
             "${amount.toStringAsFixed(0)} " +
                 AppServices.userService.getCurrentUser()!.currency,
             style: TextStyle(
-              color: Colors.white70,
+              color: theme.secondTextColor,
               fontSize: 12,
             ),
           ),

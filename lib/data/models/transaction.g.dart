@@ -25,13 +25,14 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       description: fields[5] as String?,
       isRecurring: fields[6] as bool,
       isAchieved: fields[7] as bool,
+      monthlyAchievements: (fields[8] as Map).cast<String, bool?>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Transaction obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       ..writeByte(6)
       ..write(obj.isRecurring)
       ..writeByte(7)
-      ..write(obj.isAchieved);
+      ..write(obj.isAchieved)
+      ..writeByte(8)
+      ..write(obj.monthlyAchievements);
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -20,6 +22,9 @@ class BudgetChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
+
     List<BudgetHistoryEntry> budgetHistory;
     DateTime now = DateTime.now();
     if (forLastMonth) {
@@ -88,7 +93,7 @@ class BudgetChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 20.0),
                     child: Text(
                       _formatDate(value.toInt(), budgetHistory),
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      style: TextStyle(fontSize: 12),
                     ),
                   );
                 },
@@ -103,8 +108,15 @@ class BudgetChart extends StatelessWidget {
               isCurved: true,
               barWidth: 2,
               isStrokeCapRound: true,
+              color: appTheme.brightness == Brightness.dark
+                  ? Colors.white
+                  : theme.containerColor3,
               belowBarData: BarAreaData(
-                  show: false, color: Colors.white.withOpacity(0.04)),
+                show: true,
+                color: appTheme.brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.1)
+                    : theme.containerColor3.withOpacity(0.1),
+              ),
             ),
           ],
         ),

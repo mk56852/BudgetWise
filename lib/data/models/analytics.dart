@@ -7,7 +7,7 @@ class Analytics {
   final String id;
 
   @HiveField(1)
-  final int month;
+  int month;
 
   @HiveField(2)
   final int year;

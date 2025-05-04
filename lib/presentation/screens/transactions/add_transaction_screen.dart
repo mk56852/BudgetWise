@@ -1,8 +1,10 @@
 import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/categories.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
+import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +41,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> handleSubmit() async {
+    // Validation for amount and description
+    if (_amountController.text.isEmpty) {
+      _showErrorDialog("Amount cannot be empty.");
+      return;
+    }
+    if (_descriptionController.text.isEmpty) {
+      _showErrorDialog("Description cannot be empty.");
+      return;
+    }
+    bool isAchieved = selectedDate.isBefore(DateTime.now());
+    Map<String, bool?> histo = {};
+    if (isRecurring) {
+      histo = generateEmptyMonthlyAchievements();
+    }
     Transaction transaction = Transaction(
         id: generateId("Trans:"),
         type: isIncome ? "income" : "expense",
@@ -46,11 +62,34 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         date: selectedDate,
         isRecurring: isRecurring,
         categoryId: selectedCategory,
-        isAchieved: !isRecurring,
-        description: _descriptionController.text);
-    await AppServices.transactionService.addTransaction(context, transaction);
+        isAchieved: isAchieved,
+        description: _descriptionController.text,
+        monthlyAchievements: histo);
+    bool result = await AppServices.transactionService
+        .addTransaction(context, transaction);
     if (widget.refresh != null) widget.refresh!();
-    showSuccessDialog("Transaction added successfully.");
+    if (result) showSuccessDialog("Transaction added successfully.");
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void showSuccessDialog(String message) {
@@ -77,6 +116,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
     List<String> categ = isIncome ? incomeSources : AppCategories;
     return MainContainer(
       child: Column(
@@ -89,14 +130,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
               ),
             ),
           ),
           SizedBox(
             height: 15,
           ),
-          // Income/Expense Toggle
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -104,7 +144,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 setState(() {
                   isIncome = false;
                 });
-              }),
+              }, theme, appTheme),
               SizedBox(
                 width: 5,
               ),
@@ -112,7 +152,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 setState(() {
                   isIncome = true;
                 });
-              }),
+              }, theme, appTheme),
             ],
           ),
 
@@ -120,27 +160,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
           // Amount Input
           _inputField(
-            label: "Amount",
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-          ),
+              label: "Amount",
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              theme: appTheme),
           const SizedBox(height: 10),
           // Category Dropdown
           _dropdownField("Category", selectedCategory, categ, (value) {
             setState(() {
               selectedCategory = value!;
             });
-          }),
+          }, appTheme),
           const SizedBox(height: 10),
           // Date Picker + Set to Now Button
-          _datePickerField(),
+          _datePickerField(appTheme),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Recurring transaction ?",
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500),
               ),
               Switch(
                 value: isRecurring,
@@ -152,7 +195,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 activeColor:
                     Colors.blueAccent, // Color for active state (Income)
                 inactiveThumbColor:
-                    Colors.black, // Color for inactive state (Expense)
+                    Colors.grey, // Color for inactive state (Expense)
               ),
             ],
           ),
@@ -167,24 +210,36 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ),
           // Description Field
           _inputField(
-            label: "Description",
-            controller: _descriptionController,
-            height: 120,
-            keyboardType: TextInputType.text,
-          ),
+              label: "Description",
+              controller: _descriptionController,
+              height: 120,
+              keyboardType: TextInputType.text,
+              theme: appTheme),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _actionButton("Cancel", AppColors.containerColor2, () {
-                Navigator.pop(context);
-              }),
+              Expanded(
+                child: AppActionButton(
+                    height: 55,
+                    text: "Cancel",
+                    icon: Icons.cancel_outlined,
+                    onTab: () {
+                      Navigator.pop(context);
+                    }),
+              ),
               SizedBox(
                 width: 10,
               ),
-              _actionButton("Save", AppColors.containerColor2, () {
-                handleSubmit();
-              }),
+              Expanded(
+                child: AppActionButton(
+                    text: "Save",
+                    height: 55,
+                    icon: Icons.done,
+                    onTab: () {
+                      handleSubmit();
+                    }),
+              ),
             ],
           ),
         ],
@@ -193,16 +248,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   // Toggle Button Widget
-  Widget _toggleButton(String text, bool isSelected, VoidCallback onPressed) {
+  Widget _toggleButton(String text, bool isSelected, VoidCallback onPressed,
+      AppTheme theme, ThemeData appTheme) {
+    Color selectedColor = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.9)
+        : AppColors.darkBlueColor.withOpacity(0.9);
+    Color unselectedColor = Colors.white.withOpacity(0.2);
+    Color textSelectedColor =
+        appTheme.brightness == Brightness.dark ? Colors.black : Colors.white;
+    Color textunselectedColor = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.8)
+        : Colors.black;
     return Expanded(
       child: SizedBox(
         height: 45,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isSelected ? Colors.white : Colors.white.withOpacity(0.05),
-            foregroundColor: isSelected ? Colors.black : Colors.white,
+            backgroundColor: isSelected ? selectedColor : unselectedColor,
+            foregroundColor:
+                isSelected ? textSelectedColor : textunselectedColor,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -220,7 +285,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       {required String label,
       required TextEditingController controller,
       double? height,
-      TextInputType? keyboardType}) {
+      TextInputType? keyboardType,
+      required ThemeData theme}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SizedBox(
@@ -230,12 +296,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           expands: height != null,
           controller: controller,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
             filled: true,
-            fillColor: Colors.white.withOpacity(0.05),
+            fillColor: theme.brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.05)
+                : Colors.black.withOpacity(0.05),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none),
@@ -247,15 +313,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   // Dropdown Field Widget
   Widget _dropdownField(String label, String value, List<String> items,
-      ValueChanged<String?> onChanged) {
+      ValueChanged<String?> onChanged, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
+          fillColor: theme.brightness == Brightness.dark
+              ? Colors.white.withOpacity(0.05)
+              : Colors.black.withOpacity(0.05),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none),
@@ -263,13 +330,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: value,
-            dropdownColor: Colors.black,
-            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+            dropdownColor: theme.brightness == Brightness.dark
+                ? Colors.black
+                : Colors.white,
+            icon: const Icon(
+              Icons.arrow_drop_down,
+            ),
             items: items.map((String category) {
               return DropdownMenuItem<String>(
                 value: category,
-                child:
-                    Text(category, style: const TextStyle(color: Colors.white)),
+                child: Text(
+                  category,
+                ),
               );
             }).toList(),
             onChanged: onChanged,
@@ -280,13 +352,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   // Date Picker Field
-  Widget _datePickerField() {
+  Widget _datePickerField(ThemeData theme) {
     return InputDecorator(
       decoration: InputDecoration(
         labelText: "Date",
-        labelStyle: const TextStyle(color: Colors.white70),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: theme.brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.black.withOpacity(0.05),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none),
@@ -297,32 +370,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(DateFormat('MMMM dd, yyyy').format(selectedDate),
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
-            const Icon(Icons.calendar_today, color: Colors.white70, size: 20),
+                style: const TextStyle(fontSize: 16)),
+            const Icon(Icons.calendar_month, size: 22),
           ],
-        ),
-      ),
-    );
-  }
-
-  // Action Button Widget
-  Widget _actionButton(String text, Color color, VoidCallback onPressed) {
-    return Expanded(
-      child: SizedBox(
-        height: 50,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
-          child: Text(text,
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
         ),
       ),
     );

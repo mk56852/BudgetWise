@@ -1,3 +1,7 @@
+import 'dart:ffi';
+
+import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/presentation/sharedwidgets/app_container.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +14,7 @@ class AppActionButton extends StatelessWidget {
       {super.key,
       required this.text,
       required this.icon,
-      this.height = 60,
+      this.height = 55,
       required this.onTab});
 
   @override
@@ -18,6 +22,7 @@ class AppActionButton extends StatelessWidget {
     return InkWell(
       onTap: () => onTab(),
       child: AppContainer(
+        color: Theme.of(context).extension<AppTheme>()!.containerColor3,
         height: height,
         child: Center(
           child: Row(
@@ -42,31 +47,39 @@ class AppActionButton extends StatelessWidget {
 
 class AppIconButton extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final bool insideContainer;
   final Function onTap;
   String? text;
-  AppIconButton(
-      {super.key,
-      required this.icon,
-      required this.onTap,
-      this.text,
-      this.color = Colors.white});
+  AppIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.insideContainer = false,
+    this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    AppTheme appTheme = theme.extension<AppTheme>()!;
+
     return Column(
       children: [
         InkWell(
           onTap: () => onTap(),
           child: Container(
-            height: 40,
-            width: 40,
+            height: 45,
+            width: 45,
             decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.25),
+                color: theme.brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.25)
+                    : insideContainer
+                        ? Colors.black.withOpacity(0.25)
+                        : AppColors.darkBlueColor,
                 borderRadius: BorderRadius.circular(10)),
             child: Icon(
               icon,
-              color: color,
+              color: Colors.white,
               size: 25,
             ),
           ),
@@ -76,7 +89,8 @@ class AppIconButton extends StatelessWidget {
         ),
         text != null
             ? Text(text!,
-                style: TextStyle(fontSize: 12, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 12, color: insideContainer ? Colors.white : null),
                 softWrap: true)
             : SizedBox()
       ],

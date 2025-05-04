@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
@@ -19,19 +20,13 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Theme.of(context).extension<AppTheme>()!;
     return Container(
       constraints: BoxConstraints(minHeight: 140, minWidth: 160),
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 2),
       decoration: BoxDecoration(
-        color: AppColors.containerColor,
+        color: theme.containerColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,7 +42,7 @@ class InfoCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(fontSize: 14),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -57,13 +52,15 @@ class InfoCard extends StatelessWidget {
           Text(
             subTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+            style: TextStyle(
+                color: const Color.fromARGB(255, 104, 104, 104),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             body,
             style: const TextStyle(
-              color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.w400,
             ),

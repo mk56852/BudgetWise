@@ -1,5 +1,7 @@
 import 'package:budget_wise/core/constants/categories.dart';
+import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/budget.dart';
+import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -20,11 +22,9 @@ class TransactionService {
    * Add Section 
    */
 
-  Future<void> addTransaction(
+  Future<bool> addSimpleTransaction(
       BuildContext context, Transaction transaction) async {
-    // Fetch the current budget
     Budget budget = _budgetRespository.getBudget()!;
-
     // Update the budget amount based on the transaction type
     double newAmount = budget.amount;
     if (transaction.type == 'income') {
@@ -32,9 +32,6 @@ class TransactionService {
     } else if (transaction.type == 'expense') {
       newAmount -= transaction.amount;
     }
-
-    // Log the budget change
-
     if (transaction.date.isAfter(DateTime.now())) {
       // Show confirmation dialog to the user
       bool? confirm = await showDialog<bool>(
@@ -47,22 +44,22 @@ class TransactionService {
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Save and complete'),
+                child: Text('Confirm Transaction'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Save and schedule'),
+                child: Text('Save Transaction and confirm it later'),
               ),
             ],
           );
         },
       );
-
+      if (confirm == null) return false;
       if (confirm == true) {
         // User confirmed scheduling
         transaction.isAchieved = false;
         _transactionRepository.addTransaction(transaction);
-        return;
+        return true;
       } else {
         // User chose to update immediately
         transaction.isAchieved = true;
@@ -71,10 +68,124 @@ class TransactionService {
     budget.update(newAmount);
     await _budgetRespository.updateBudgetWithIds(budget, false, transaction.id);
     _transactionRepository.addTransaction(transaction);
+    return true;
+  }
+
+  Future<bool> addRecurringTransaction(
+      BuildContext context, Transaction transaction) async {
+    Budget budget = _budgetRespository.getBudget()!;
+    // Update the budget amount based on the transaction type
+    double newAmount = budget.amount;
+    if (transaction.type == 'income') {
+      newAmount += transaction.amount;
+    } else if (transaction.type == 'expense') {
+      newAmount -= transaction.amount;
+    }
+    DateTime now = DateTime.now();
+    if (transaction.date.month == now.month) {
+      bool? confirm = await showDialog<bool?>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Recurring Transaction"),
+            content: Text(
+                "Do you want to add this transaction to your budget for this month? (If no you can avhieve it later)"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Achieve it now for current month'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Save and achieve it later'),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirm == null) return false;
+      if (!confirm) {
+        // User confirmed scheduling
+        transaction.isAchieved = false;
+        _transactionRepository.addTransaction(transaction);
+        return true;
+      } else {
+        // User chose to update immediately
+        transaction.isAchieved = true;
+        achieveRecurringForMonth(transaction, getMonthYearKey(now));
+      }
+      budget.update(newAmount);
+      await _budgetRespository.updateBudgetWithIds(
+          budget, false, transaction.id);
+    } else
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Recurring Transaction"),
+            content: Text(
+                "You need to manage the recurring transaction manually. Please open the transaction details and validate it for the specific month"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    _transactionRepository.addTransaction(transaction);
+    return true;
+  }
+
+  Future<bool> addTransaction(
+      BuildContext context, Transaction transaction) async {
+    if (transaction.isRecurring)
+      return addRecurringTransaction(context, transaction);
+    else
+      return addSimpleTransaction(context, transaction);
+
+    // Log the budget change
   }
 
   void updateTransaction(Transaction transaction) async {
     await _transactionRepository.updateTransaction(transaction);
+  }
+
+  void achieveTransaction(Transaction transaction) {
+    transaction.isAchieved = true;
+    if (transaction.isRecurring) {
+      transaction.monthlyAchievements[getMonthYearKey(DateTime.now())] = true;
+    }
+    updateTransaction(transaction);
+    Budget budget = AppServices.budgetService.getBudget()!;
+    budget.lastAmount = budget.amount;
+    if (transaction.type == "income") {
+      budget.amount += transaction.amount;
+    } else {
+      budget.amount -= transaction.amount;
+    }
+    AppServices.budgetService
+        .updateBudgetWithIds(budget, false, transaction.id);
+  }
+
+  void achieveRecurringForMonth(Transaction transaction, String month) {
+    if (!transaction.isRecurring) return;
+    transaction.monthlyAchievements[month] = true;
+    updateTransaction(transaction);
+    Budget budget = AppServices.budgetService.getBudget()!;
+    budget.lastAmount = budget.amount;
+    if (transaction.type == "income") {
+      budget.amount += transaction.amount;
+    } else {
+      budget.amount -= transaction.amount;
+    }
+    AppServices.budgetService
+        .updateBudgetWithIds(budget, false, transaction.id);
   }
 
   Transaction? getTransactionById(String id) {
@@ -149,48 +260,33 @@ class TransactionService {
 
   List<Transaction> getAllTranasactionsForMonth(int year, int month) {
     DateTime startDate = DateTime(year, month, 1);
-    DateTime currentDate = DateTime.now();
+    int nextMonth = month == 12 ? 1 : month + 1;
+    int nextYear = month == 12 ? year + 1 : year;
+    DateTime endDate = DateTime(nextYear, nextMonth, 1);
 
     List<Transaction> allTransactions =
         _transactionRepository.getAllTransactions();
 
-    return allTransactions
-        .where((transaction) =>
-            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
-            transaction.date.isBefore(currentDate))
-        .toList();
+    return allTransactions.where((transaction) {
+      if (transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
+          transaction.date.isBefore(endDate))
+        return true;
+      else if (transaction.isRecurring &&
+          transaction.isTranasctionAchievedForMonth(year, month))
+        return true;
+      else
+        return false;
+    }).toList();
   }
 
   List<Transaction> getExpensesFromMonthYear(int year, int month) {
-    DateTime startDate = DateTime(year, month, 1);
-    DateTime currentDate = DateTime.now();
-
-    // Fetch all transactions
-    List<Transaction> allTransactions =
-        _transactionRepository.getAllTransactions();
-
-    // Filter for expenses within the date range
-    return allTransactions
-        .where((transaction) =>
-            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
-            transaction.date.isBefore(currentDate.add(Duration(days: 1))) &&
-            transaction.type == 'expense')
-        .toList();
+    List<Transaction> allTransaction = getAllTranasactionsForMonth(year, month);
+    return allTransaction.where((item) => item.type == "expense").toList();
   }
 
   List<Transaction> getIncomesFromMonthYear(int year, int month) {
-    DateTime startDate = DateTime(year, month, 1);
-    DateTime currentDate = DateTime.now();
-
-    List<Transaction> allTransactions =
-        _transactionRepository.getAllTransactions();
-
-    return allTransactions
-        .where((transaction) =>
-            transaction.date.isAfter(startDate.subtract(Duration(days: 1))) &&
-            transaction.date.isBefore(currentDate.add(Duration(days: 1))) &&
-            transaction.type == 'income')
-        .toList();
+    List<Transaction> allTransaction = getAllTranasactionsForMonth(year, month);
+    return allTransaction.where((item) => item.type == "income").toList();
   }
 
   // Get transactions for a specific month and year
@@ -241,9 +337,9 @@ class TransactionService {
     if (achievementStatus != null) {
       transactions = transactions.where((transaction) {
         if (achievementStatus == 'achieved') {
-          return transaction.isAchieved;
+          return transaction.isTranAchieved();
         } else if (achievementStatus == 'not achieved yet') {
-          return !transaction.isAchieved;
+          return !transaction.isTranAchieved();
         }
         return true; // For 'both', return all
       }).toList();
@@ -265,6 +361,13 @@ class TransactionService {
     return _transactionRepository
         .getAllTransactions()
         .where((transaction) => transaction.categoryId == categoryId)
+        .toList();
+  }
+
+  List<Transaction> getRecurringTransaction() {
+    return _transactionRepository
+        .getAllTransactions()
+        .where((transaction) => transaction.isRecurring)
         .toList();
   }
 
@@ -406,13 +509,13 @@ class TransactionService {
   List<Transaction> getNotAchievedTransaction(
       List<Transaction> allTransactions) {
     return allTransactions
-        .where((transaction) => !transaction.isAchieved)
+        .where((transaction) => !transaction.isTranAchieved())
         .toList();
   }
 
   List<Transaction> getAchievedTransaction(List<Transaction> allTransactions) {
     return allTransactions
-        .where((transaction) => transaction.isAchieved)
+        .where((transaction) => transaction.isTranAchieved())
         .toList();
   }
 
@@ -432,5 +535,10 @@ class TransactionService {
 
   double calculateAmountFromList(List<Transaction> transactions) {
     return transactions.fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  void fixRecurringTransactions() {
+    List<Transaction> recurrings = getRecurringTransaction();
+    for (Transaction item in recurrings) item.fixRecurringTransaction();
   }
 }

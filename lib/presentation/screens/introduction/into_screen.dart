@@ -27,7 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         PageViewModel(
           title: "Welcome to BudgetWise",
           body:
-              "BudgetWise is here to empower you to manage your finances—no matter what currency you use. Whether it’s dollars, euros, yen, or any other, our app ensures every transaction counts. Start your journey toward financial clarity and freedom—because you deserve a smarter way to manage your money.",
+              "BudgetWise is here to empower you to manage your finances—no matter what currency you use. Whether it's dollars, euros, yen, or any other, our app ensures every transaction counts. Start your journey toward financial clarity and freedom—because you deserve a smarter way to manage your money.",
           image: Center(
             child: SizedBox(
                 height: 200,
@@ -132,6 +132,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             lastAmount: 0,
             lastUpdated: DateTime.now());
         AppServices.budgetService.addBudget(currentBudget);
+
         DateTime time = DateTime.now();
         AppServices.analyticsService.addAnalytics(Analytics(
             id: generateId("Analytics:"),

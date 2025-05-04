@@ -1,3 +1,4 @@
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:flutter/material.dart';
 
 class SectionTitle extends StatelessWidget {
@@ -7,11 +8,12 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color color = Theme.of(context).extension<AppTheme>()!.textColor;
     if (onTab == null) {
       return Text(
         text,
-        style: TextStyle(
-            color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        style:
+            TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold),
       );
     } else {
       return Row(
@@ -21,11 +23,11 @@ class SectionTitle extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
-                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                color: color, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           Icon(
             Icons.arrow_forward_ios,
-            color: Colors.white,
+            color: color,
             size: 20,
           )
         ],

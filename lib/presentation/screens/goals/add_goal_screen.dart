@@ -1,7 +1,9 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
+import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -222,6 +224,8 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+
     return MainContainer(
       child: _isLoading
           ? Center(child: CircularProgressIndicator()) // Show loading spinner
@@ -235,37 +239,41 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
                         ? "Set Your Goal"
                         : "Update Your Goal",
                     style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
 
                 // Goal Name
-                _inputField("Goal Name", _goalNameController, null),
+                _inputField("Goal Name", _goalNameController, null, appTheme),
 
                 // Target Amount
                 _inputField("Target Amount (DT)", _amountController, null,
-                    TextInputType.number),
+                    appTheme, TextInputType.number),
 
                 // Priority Selector
-                _prioritySelector(),
+                _prioritySelector(appTheme),
                 SizedBox(
                   height: 16,
                 ),
-                const Text("Select a deadline",
-                    style: TextStyle(color: Colors.white70, fontSize: 16)),
-                _datePicker(),
+                Text("Select a deadline",
+                    style: TextStyle(
+                        color: appTheme.brightness == Brightness.dark
+                            ? Colors.white70
+                            : Colors.black,
+                        fontSize: 16)),
+                _datePicker(appTheme),
                 SizedBox(
                   height: 16,
                 ),
                 // Icon Selection
-                _iconSelector(),
+                _iconSelector(appTheme),
                 SizedBox(
                   height: 16,
                 ),
                 // Notes
-                _inputField("Description", _notesController, 150),
+                _inputField("Description", _notesController, 150, appTheme),
                 SizedBox(
                   height: 16,
                 ),
@@ -274,20 +282,24 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: _actionButton("Cancel", AppColors.containerColor2,
-                          () {
-                        Navigator.pop(context);
-                      }),
+                      child: AppActionButton(
+                          text: "Cancel",
+                          icon: Icons.cancel_outlined,
+                          onTab: () {
+                            Navigator.pop(context);
+                          }),
                     ),
                     SizedBox(
                       width: 10,
                     ),
                     Expanded(
-                      child:
-                          _actionButton("Save", AppColors.containerColor2, () {
-                        // Handle Save Action
-                        handleSubmit();
-                      }),
+                      child: AppActionButton(
+                          text: "Save",
+                          icon: Icons.done,
+                          onTab: () {
+                            // Handle Save Action
+                            handleSubmit();
+                          }),
                     ),
                   ],
                 ),
@@ -297,8 +309,8 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
   }
 
   // Text Input Field
-  Widget _inputField(
-      String label, TextEditingController controller, double? height,
+  Widget _inputField(String label, TextEditingController controller,
+      double? height, ThemeData appTheme,
       [TextInputType? keyboardType]) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -309,12 +321,16 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
           expands: height != null,
           controller: controller,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
+            labelStyle: TextStyle(
+                color: appTheme.brightness == Brightness.dark
+                    ? Colors.white70
+                    : Colors.black),
             filled: true,
-            fillColor: AppColors.containerColor,
+            fillColor: appTheme.brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.05)
+                : Colors.black.withOpacity(0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -328,26 +344,34 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
   }
 
   // Priority Selector
-  Widget _prioritySelector() {
+  Widget _prioritySelector(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _priorityButton("High", Colors.white.withOpacity(0.9)),
-          _priorityButton("Medium", Colors.white.withOpacity(0.9)),
-          _priorityButton("Low", Colors.white.withOpacity(0.9)),
+          _priorityButton("High", theme),
+          _priorityButton("Medium", theme),
+          _priorityButton("Low", theme),
         ],
       ),
     );
   }
 
-  Widget _priorityButton(String label, Color color) {
+  Widget _priorityButton(String label, ThemeData theme) {
+    Color selected = theme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.9)
+        : AppColors.darkBlueColor.withOpacity(0.8);
+    Color selectedText =
+        theme.brightness == Brightness.dark ? Colors.black : Colors.white;
+    Color unselectedText =
+        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
     return ElevatedButton(
       onPressed: () => _setPriority(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: _priority == label ? color : AppColors.containerColor,
-        foregroundColor: _priority == label ? Colors.black : Colors.white,
+        backgroundColor:
+            _priority == label ? selected : AppColors.containerColor,
+        foregroundColor: _priority == label ? selectedText : unselectedText,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
@@ -357,13 +381,13 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
   }
 
   // Deadline Picker
-  Widget _datePicker() {
+  Widget _datePicker(ThemeData theme) {
     return ListTile(
       title: Text(
         _isDeadlineEnabled
             ? DateFormat('MMMM dd, yyyy').format(_selectedDate)
             : "No Deadline", // Show text when disabled
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+        style: const TextStyle(fontSize: 16),
       ),
       leading: Checkbox(
         value: _isDeadlineEnabled,
@@ -372,22 +396,32 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
             _isDeadlineEnabled = val ?? false;
           });
         },
-        activeColor: Color(0xFF00E5FF).withOpacity(0.7),
+        activeColor:
+            theme.brightness == Brightness.dark ? Colors.white : Colors.black,
       ),
       trailing: IconButton(
-        icon: const Icon(Icons.calendar_today, color: Colors.white),
+        icon: const Icon(
+          Icons.calendar_today,
+        ),
         onPressed: _pickDate,
       ),
     );
   }
 
   // Icon Selection
-  Widget _iconSelector() {
+  Widget _iconSelector(ThemeData theme) {
+    Color selected = theme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.9)
+        : AppColors.darkBlueColor.withOpacity(0.8);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Choose an Icon",
-            style: TextStyle(color: Colors.white70, fontSize: 16)),
+        Text("Choose an Icon",
+            style: TextStyle(
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white70
+                    : Colors.black,
+                fontSize: 16)),
         const SizedBox(height: 8),
         Center(
           child: Wrap(
@@ -399,7 +433,7 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
                 child: CircleAvatar(
                   radius: 30,
                   backgroundColor: _selectedIcon == item["icon"]
-                      ? Colors.blue
+                      ? selected
                       : AppColors.containerColor2,
                   child: Text(
                     item["icon"]!,
@@ -425,8 +459,7 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
       ),
       child: Text(
         label,
-        style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }

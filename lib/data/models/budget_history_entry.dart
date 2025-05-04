@@ -30,22 +30,33 @@ class BudgetHistoryEntry {
 
   String getMessage() {
     if (isForSavings != null && isForSavings!) {
-      SavingsGoal goal =
-          AppServices.savingsGoalService.getSavingsGoal(transactionId!)!;
-      if (lastAmount > amount) {
-        return "Save money for goal :" + goal.name;
-      } else {
-        return "Get money back from Goal :" + goal.name;
-      }
-    } else if (isForSavings != null && !isForSavings!) {
-      Transaction transaction =
-          AppServices.transactionService.getTransactionById(transactionId!)!;
-      if (lastAmount > amount) {
-        return "Expense transaction :" + transaction.id;
-      } else {
-        return "Income transaction :" + transaction.id;
-      }
-    } else if (lastAmount > amount) {
+      SavingsGoal? goal =
+          AppServices.savingsGoalService.getSavingsGoal(transactionId!);
+      if (goal != null) {
+        if (lastAmount > amount) {
+          return "Save money for goal :" + goal.name;
+        } else {
+          return "Get money back from Goal :" + goal.name;
+        }
+      } else
+        return "Savings Goal (deleted)";
+    }
+
+    if (isForSavings != null && !isForSavings!) {
+      Transaction? transaction =
+          AppServices.transactionService.getTransactionById(transactionId!);
+      if (transaction != null) {
+        String header = transaction.isRecurring ? "Recurring " : "";
+        if (lastAmount > amount) {
+          return header + "Expense transaction :" + transaction.description!;
+        } else {
+          return header + "Income transaction :" + transaction.description!;
+        }
+      } else
+        return "Transaction (deleted)";
+    }
+
+    if (lastAmount > amount) {
       return "Draw money maually";
     } else {
       return "Deposit money maually";

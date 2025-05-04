@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:budget_wise/data/models/transaction.dart';
+import 'package:intl/intl.dart';
 
 // Function to return a list of currencies
 List<String> getCurrencyList() {
@@ -84,4 +85,61 @@ bool isRecurringTransactionDue(Transaction txn) {
   DateTime now = DateTime.now();
   // The transaction is due if now is equal or after the scheduled date.
   return now.isAfter(txn.date) || now.isAtSameMomentAs(txn.date);
+}
+
+Map<String, bool?> generateEmptyMonthlyAchievements() {
+  final months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+  return Map.fromIterable(
+    months,
+    key: (month) => month,
+    value: (_) => null,
+  );
+}
+
+String getMonthYearKey(DateTime date) {
+  return DateFormat('MMM').format(date);
+}
+
+List<String> getMonthsBetween(DateTime start, DateTime end) {
+  // Ensure start is before end
+  if (start.isAfter(end)) {
+    final temp = start;
+    start = end;
+    end = temp;
+  }
+
+  final List<String> months = [];
+  DateTime current = DateTime(start.year, start.month);
+
+  while (current.isBefore(DateTime(end.year, end.month + 1))) {
+    months.add(getMonthYearKey(current));
+    current = DateTime(current.year, current.month + 1);
+  }
+
+  return months;
+}
+
+DateTime getPreviousMonth(DateTime currentDate) {
+  if (currentDate.month == 1) {
+    return DateTime(currentDate.year - 1, 12, 1);
+  } else {
+    return DateTime(currentDate.year, currentDate.month - 1, 1);
+  }
+}
+
+DateTime getFirstDayOfMonth(DateTime currentDate) {
+  return DateTime(currentDate.year, currentDate.month, 1);
 }

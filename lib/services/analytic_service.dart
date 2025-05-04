@@ -32,17 +32,9 @@ class AnalyticsService {
     DateTime today = DateTime.now();
     Analytics analytics = getCurrentMonthAnalytics()!;
     if (analytics.month != today.month) {
-      double budgetAmount = AppServices.budgetService.getBudget()!.amount;
       double totalSaves = AppServices.savingsGoalService.getAllSavedAmount();
-      double totalExpense = AppServices.transactionService
-          .calculateTotalExpensesByMonth(analytics.year, analytics.month);
-      double totalIncome = AppServices.transactionService
-          .calculateTotalIncomeByMonth(analytics.year, analytics.month);
-
-      analytics.incomeTotal = totalIncome;
-      analytics.totalBudget = budgetAmount;
-      analytics.expenseTotal = totalExpense;
       analytics.savedForGoal = totalSaves;
+      analytics.month = today.month;
       updateAnalytics(analytics);
     }
   }

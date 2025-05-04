@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +11,15 @@ class BudgetHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
+    Color txtColor1 = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.7)
+        : theme.secondTextColor;
+    Color txtColor2 = appTheme.brightness == Brightness.dark
+        ? Colors.white54
+        : Colors.redAccent;
+
     bool isPositifProg = history.amount > history.lastAmount;
     double prog = isPositifProg
         ? history.amount - history.lastAmount
@@ -34,13 +44,12 @@ class BudgetHistoryItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: theme.containerColor,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 isPositifProg ? Icons.trending_up : Icons.trending_down,
                 size: 28,
-                color: Colors.white,
               ),
             ),
             const SizedBox(width: 12),
@@ -53,10 +62,9 @@ class BudgetHistoryItem extends StatelessWidget {
                         child: Text(
                           history.getMessage(),
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -73,7 +81,7 @@ class BudgetHistoryItem extends StatelessWidget {
                               history.updatedAt), // Formatting date properly
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withOpacity(0.7),
+                            color: txtColor1,
                           ),
                         ),
                       ),
@@ -83,9 +91,8 @@ class BudgetHistoryItem extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: isPositifProg
-                              ? Colors.white70
-                              : Colors
-                                  .white54, // Green for income, Red for expense
+                              ? txtColor1
+                              : txtColor2, // Green for income, Red for expense
                         ),
                       ),
                     ],
@@ -99,19 +106,18 @@ class BudgetHistoryItem extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white70),
+                            color: txtColor1),
                       ),
                       Icon(
                         isPositifProg ? Icons.trending_up : Icons.trending_down,
                         size: 15,
-                        color: Colors.white,
                       ),
                       Text(
                         "${history.amount.toStringAsFixed(2)}",
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white70),
+                            color: txtColor1),
                       ),
                     ],
                   )

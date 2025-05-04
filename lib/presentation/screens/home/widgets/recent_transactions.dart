@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/transactions/transaction_details.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class RecentTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Theme.of(context).extension<AppTheme>()!;
     bool isIncome = transaction.type.toLowerCase() == "income";
 
     return InkWell(
@@ -29,20 +31,20 @@ class RecentTransactions extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: 18),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: theme.containerColor,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.attach_money,
                     size: 28,
-                    color: Colors.white,
                   ),
                 ),
                 // Badge positioned at the top right
@@ -53,16 +55,16 @@ class RecentTransactions extends StatelessWidget {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: transaction.isAchieved
+                      color: transaction.isTranAchieved()
                           ? Colors.green.withOpacity(0.35)
                           : Colors.red.withOpacity(0.35),
                     ),
                     child: Icon(
-                      transaction.isAchieved
+                      transaction.isTranAchieved()
                           ? Icons.check
                           : Icons.calendar_month,
                       size: 12,
-                      color: Colors.white,
+                      color: theme.iconColor,
                     ),
                   ),
                 ),
@@ -71,16 +73,17 @@ class RecentTransactions extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           transaction.id,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: theme.textColor,
                           ),
                         ),
                       ),
@@ -89,10 +92,8 @@ class RecentTransactions extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isIncome
-                              ? Colors.white70
-                              : Colors
-                                  .white54, // Green for income, Red for expense
+                          color: theme
+                              .textColor, // Green for income, Red for expense
                         ),
                       ),
                     ],
@@ -108,89 +109,45 @@ class RecentTransactions extends StatelessWidget {
                               transaction.date), // Formatting date properly
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withOpacity(0.7),
+                            color: theme.secondTextColor,
                           ),
                         ),
                       ),
-                      _generateBudge(transaction.categoryId!),
-                      if (transaction.isRecurring) _generateBudge("Recurring"),
+                      _generateBudge(transaction.categoryId!, theme),
+                      if (transaction.isRecurring)
+                        _generateBudge("Recurring", theme),
                     ],
-                  )
+                  ),
+                  if (transaction.description != null)
+                    Text(
+                      transaction.description!,
+                      style: TextStyle(
+                          overflow: TextOverflow.ellipsis,
+                          fontWeight: FontWeight.w500),
+                    ),
                 ],
               ),
             )
-            /* Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    transaction.id,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd MMM yyyy')
-                        .format(transaction.date), // Formatting date properly
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              children: [
-                Text(
-                  "${isIncome ? "+" : "-"}\$${transaction.amount.toStringAsFixed(2)}",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isIncome
-                        ? Colors.white70
-                        : Colors.white54, // Green for income, Red for expense
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      color: AppColors.containerColor2,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Text(
-                    transaction.isAchieved ? "Achieved" : "Not Achieved",
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white // Green for income, Red for expense
-                        ),
-                  ),
-                ),
-              ],
-            ),*/
           ],
         ),
       ),
     );
   }
 
-  Widget _generateBudge(String text) {
+  Widget _generateBudge(String text, AppTheme theme) {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0),
       child: Container(
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
-            color: AppColors.containerColor2,
+            color: theme.containerColor,
             borderRadius: BorderRadius.circular(5)),
         child: Text(
           text,
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: Colors.white // Green for income, Red for expense
+              color: theme.textColor // Green for income, Red for expense
               ),
         ),
       ),

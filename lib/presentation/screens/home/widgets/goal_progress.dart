@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/goals/goals_details.dart';
 import 'package:flutter/material.dart';
@@ -10,23 +11,11 @@ class GoalProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
     double progress = (goal.savedAmount / goal.targetAmount).clamp(0.0, 1.0);
     int progressPercent = (progress * 100).toInt();
 
-    Color priorityColor;
-    switch (goal.priority) {
-      case 2:
-        priorityColor = AppColors.highPriorityColor;
-        break;
-      case 1:
-        priorityColor = AppColors.meduimPriorityColor;
-        break;
-      case 0:
-        priorityColor = AppColors.lowPriorityColor;
-        break;
-      default:
-        priorityColor = Colors.grey;
-    }
     List<String> prio = ["Low", "Medium", "Hight"];
 
     return InkWell(
@@ -46,7 +35,7 @@ class GoalProgress extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.06),
+            color: theme.containerColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -60,11 +49,11 @@ class GoalProgress extends StatelessWidget {
                       children: [
                         // Added icon (displayed in a CircleAvatar)
                         CircleAvatar(
-                          backgroundColor: Colors.white.withOpacity(0.1),
-                          radius: 16,
+                          backgroundColor: Colors.black.withOpacity(0.1),
+                          radius: 18,
                           child: Text(
                             goal.icon ?? "🏦",
-                            style: const TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 20),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -75,7 +64,6 @@ class GoalProgress extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -86,7 +74,7 @@ class GoalProgress extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: priorityColor.withOpacity(0.2),
+                      color: theme.containerColor2,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -94,7 +82,6 @@ class GoalProgress extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: priorityColor,
                       ),
                     ),
                   ),
@@ -108,13 +95,18 @@ class GoalProgress extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: SizedBox(
-                        height: 17,
+                        height: 12,
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 10,
-                          backgroundColor: Colors.white.withOpacity(0.2),
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(priorityColor),
+                          backgroundColor:
+                              appTheme.brightness == Brightness.dark
+                                  ? Colors.white.withOpacity(0.2)
+                                  : Colors.black38,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              appTheme.brightness == Brightness.dark
+                                  ? Colors.white.withOpacity(0.9)
+                                  : AppColors.darkBlueColor.withOpacity(0.9)),
                         ),
                       ),
                     ),
@@ -125,7 +117,6 @@ class GoalProgress extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -140,7 +131,6 @@ class GoalProgress extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.8),
                     ),
                   ),
                   Text(
@@ -148,7 +138,6 @@ class GoalProgress extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.8),
                     ),
                   ),
                 ],

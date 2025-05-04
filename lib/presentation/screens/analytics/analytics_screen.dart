@@ -1,5 +1,4 @@
 import 'package:budget_wise/core/constants/Colors.dart';
-import 'package:budget_wise/core/constants/categories.dart'; // Importing categories
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/data/models/transaction.dart';
@@ -52,13 +51,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         ? AppServices.savingsGoalService.getAllSavedAmount()
         : AppServices.analyticsService.getCurrentMonthAnalytics()!.savedForGoal;
 
-    int goalsNumber =
-        AppServices.savingsGoalService.getAllSavingsGoals().length;
-    int achievedGoal = AppServices.savingsGoalService
-        .getAllSavingsGoals()
-        .where((goal) => goal.isAchieved)
-        .length;
-
     List<Transaction> transactions = AppServices.transactionService
         .getAllTranasactionsForMonth(
             month == "current" ? today.year : previousYear,
@@ -66,6 +58,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     List<Transaction> achievedTransaction =
         AppServices.transactionService.getAchievedTransaction(transactions);
+    for (Transaction item in achievedTransaction) print(item.description!);
     List<Transaction> notAchived =
         AppServices.transactionService.getNotAchievedTransaction(transactions);
     List<Transaction> expenseTransactions = AppServices.transactionService
@@ -89,7 +82,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ),
@@ -204,38 +196,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         SizedBox(
           height: 5,
         ),
-
-        /*    Animate(
-            effects: [
-              FadeEffect(duration: 400.ms),
-              SlideEffect(
-                begin: const Offset(0, 0.2),
-                end: Offset.zero,
-                duration: 300.ms,
-                curve: Curves.easeOut,
-              ),
-            ],
-            onPlay: (controller) => controller.forward(),
-            delay: (300).ms,
-            child: Row(
-              children: [
-                Expanded(
-                    child: InfoCard(
-                        icon: Icons.savings,
-                        title: "Savings Goal",
-                        subTitle: "Total Savings goal",
-                        body: goalsNumber.toString() + " Goals",
-                        isPositive: true)),
-                SizedBox(width: 6),
-                Expanded(
-                    child: InfoCard(
-                        icon: Icons.done,
-                        title: "Achieved Goals",
-                        subTitle: "Total achieved goal",
-                        body: achievedGoal.toString() + " Goals",
-                        isPositive: true))
-              ],
-            )),*/
         SizedBox(
           height: 15,
         ),
@@ -270,7 +230,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 Text(
                   "Click on the chart points to see the amount",
-                  style: TextStyle(color: Colors.white60, fontSize: 13),
+                  style: TextStyle(fontSize: 13),
                 )
               ],
             ))),
@@ -281,8 +241,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(children: [
           ...budgetHisto
               .take(4)
-              .map((item) => BudgetHistoryItem(history: item))
-              .toList(),
+              .map((item) => BudgetHistoryItem(history: item)),
           SizedBox(
             height: 15,
           ),
@@ -322,8 +281,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _generateTitle(String title) {
     return Center(
       child: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -438,6 +396,10 @@ class BudgetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    Color color1 = appTheme.brightness == Brightness.dark
+        ? Colors.blue
+        : AppColors.darkBlueColor;
     double totalBudget = availableBudget + savedForGoals;
 
     return AppContainer(
@@ -447,15 +409,14 @@ class BudgetWidget extends StatelessWidget {
           const Text(
             "Total Budget",
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color.fromRGBO(220, 220, 220, 1)),
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             "\$${totalBudget.toStringAsFixed(2)}",
-            style: const TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
@@ -464,10 +425,11 @@ class BudgetWidget extends StatelessWidget {
             height: 190,
             child: PieChart(
               PieChartData(
-                sections: _buildChartSections(),
+                sections: _buildChartSections(color1),
                 borderData: FlBorderData(show: false),
                 centerSpaceRadius: 50,
                 sectionsSpace: 2,
+
                 // Animation properties
               ),
             ),
@@ -475,17 +437,18 @@ class BudgetWidget extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Budget Details
-          _buildLegend("Available Budget", Colors.blue, availableBudget),
-          _buildLegend("Saved for Goals", Colors.white, savedForGoals),
+          _buildLegend("Available Budget", color1, availableBudget),
+          _buildLegend(
+              "Saved for Goals", Colors.white.withOpacity(0.8), savedForGoals),
         ],
       ),
     );
   }
 
-  List<PieChartSectionData> _buildChartSections() {
+  List<PieChartSectionData> _buildChartSections(Color color1) {
     return [
       PieChartSectionData(
-        color: Colors.blue,
+        color: color1,
         value: availableBudget,
         title:
             "${(availableBudget / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
@@ -494,7 +457,7 @@ class BudgetWidget extends StatelessWidget {
             fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
       ),
       PieChartSectionData(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.9),
         value: savedForGoals,
         title:
             "${(savedForGoals / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
@@ -519,8 +482,7 @@ class BudgetWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             "$label: \$${amount.toStringAsFixed(2)}",
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -539,7 +501,6 @@ class SavingsGoalsProgress extends StatelessWidget {
     double totalTarget = goals.fold(0, (sum, goal) => sum + goal.targetAmount);
     double overallProgress =
         totalTarget > 0 ? (totalSaved / totalTarget).clamp(0.0, 1.0) : 0.0;
-    String currency = AppServices.userService.getCurrentUser()!.currency;
     return AppContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

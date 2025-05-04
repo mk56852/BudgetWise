@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/presentation/screens/analytics/analytics_screen.dart';
 import 'package:budget_wise/presentation/screens/goals/SavingsGoalsList.dart';
 import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
@@ -8,47 +9,18 @@ import 'package:budget_wise/presentation/screens/transactions/transactions_scree
 import 'package:budget_wise/services/pdf_exporter.dart';
 import 'package:fab_circular_menu_plus/fab_circular_menu_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-final List<SalomonBottomBarItem> bottomNavItems = [
-  SalomonBottomBarItem(
-    icon: Icon(Icons.home),
-    title: Text("Home"),
-    selectedColor: Colors.white, // Primary color
-  ),
-  SalomonBottomBarItem(
-    icon: Icon(Icons.list),
-    title: Text("Transactions"),
-    selectedColor: Colors.white,
-  ),
-  SalomonBottomBarItem(
-    icon: Icon(Icons.savings),
-    title: Text("Goals"),
-    selectedColor: Colors.white,
-  ),
-  SalomonBottomBarItem(
-    icon: Icon(Icons.analytics),
-    title: Text("Analytics"),
-    selectedColor: Colors.white,
-  ),
-];
-
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   int _currentIndex = 0;
-
-  List<Widget?> get _floatingButton => [
-        null,
-        _generate_transaction_floating_button(),
-        _generate_transaction_floating_button(),
-        _generate_analytics_floating_button()
-      ];
 
   void updateScreen(int index) {
     setState(() {
@@ -65,38 +37,88 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+    ThemeData appTheme =
+        themeMode == ThemeMode.dark ? AppDarkTheme : AppLightTheme;
+
+    List<Widget?> _floatingButton = [
+      null,
+      _generate_transaction_floating_button(appTheme),
+      _generate_transaction_floating_button(appTheme),
+      _generate_analytics_floating_button(appTheme)
+    ];
+
+    final List<SalomonBottomBarItem> bottomNavItems = [
+      SalomonBottomBarItem(
+        icon: Icon(Icons.home),
+        title: Text("Home"),
+        unselectedColor: appTheme.extension<AppTheme>()!.iconColor,
+        selectedColor:
+            appTheme.extension<AppTheme>()!.iconColor, // Primary color
+      ),
+      SalomonBottomBarItem(
+        icon: Icon(Icons.list),
+        title: Text("Transactions"),
+        unselectedColor: appTheme.extension<AppTheme>()!.iconColor,
+        selectedColor: appTheme.extension<AppTheme>()!.iconColor,
+      ),
+      SalomonBottomBarItem(
+        icon: Icon(Icons.savings),
+        title: Text("Goals"),
+        unselectedColor: appTheme.extension<AppTheme>()!.iconColor,
+        selectedColor: appTheme.extension<AppTheme>()!.iconColor,
+      ),
+      SalomonBottomBarItem(
+        icon: Icon(Icons.analytics),
+        title: Text("Analytics"),
+        unselectedColor: appTheme.extension<AppTheme>()!.iconColor,
+        selectedColor: appTheme.extension<AppTheme>()!.iconColor,
+      ),
+    ];
+
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: LayoutBuilder(
           builder: (context, constraints) => Container(
             alignment: Alignment.topLeft,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.darkBlueColor,
-                  Colors.black,
-                ],
-              ),
+              gradient: appTheme.brightness == Brightness.light
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.fromRGBO(220, 220, 225, 1),
+                        Colors.white,
+                      ],
+                    )
+                  : LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.darkBlueColor,
+                        Colors.black,
+                      ],
+                    ),
             ),
             child: SafeArea(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-                child: Stack(
-                  children: [
-                    SizedBox(
-                        height: constraints.maxHeight,
-                        width: constraints.maxWidth,
-                        child: Opacity(
-                          opacity: 0.06,
-                          child: Image.asset("assets/images/pngegg.png",
-                              fit: BoxFit.fitHeight),
-                        )),
-                    SingleChildScrollView(child: _screens[_currentIndex]),
-                  ],
-                ),
+              child: Stack(
+                children: [
+                  SizedBox(
+                      height: constraints.maxHeight,
+                      width: constraints.maxWidth,
+                      child: Opacity(
+                          opacity: themeMode == ThemeMode.dark ? 0.055 : 0.15,
+                          child: Image.asset(
+                              themeMode == ThemeMode.dark
+                                  ? "assets/images/pngegg.png"
+                                  : "assets/images/pngegg_light.png",
+                              fit: BoxFit.fitHeight))),
+                  SingleChildScrollView(
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 20),
+                          child: _screens[_currentIndex])),
+                ],
               ),
             ),
           ),
@@ -111,20 +133,26 @@ class _MainScreenState extends State<MainScreen> {
           selectedItemColor: Colors.white, // Primary color
           unselectedItemColor:
               Colors.white.withOpacity(0.8), // Unselected color
-          backgroundColor: Colors.black, // Dark background
+          backgroundColor:
+              appTheme.extension<AppTheme>()!.bottomBarColor, // Dark background
         ),
         floatingActionButton: _floatingButton[_currentIndex]);
   }
 
-  Widget _generate_transaction_floating_button() {
+  Widget _generate_transaction_floating_button(ThemeData theme) {
+    Color color1 = theme.brightness == Brightness.dark
+        ? Colors.white
+        : AppColors.darkBlueColor;
+    Color color2 =
+        theme.brightness == Brightness.dark ? Colors.black : Colors.white;
     return LayoutBuilder(
       builder: (context, constraints) => FabCircularMenuPlus(
-          fabColor: Colors.blueAccent.withOpacity(0.9),
+          fabColor: color1,
           fabChild: Icon(
             Icons.add,
-            color: Colors.white,
+            color: color2,
           ),
-          ringColor: Colors.blue.withOpacity(1),
+          ringColor: color1,
           ringWidth: constraints.maxWidth * 0.22,
           ringDiameter: constraints.maxWidth * 0.9,
           children: <Widget>[
@@ -138,9 +166,9 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Text(
                     "Add",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: color2),
                   ),
-                  Text("tranasction", style: TextStyle(color: Colors.white)),
+                  Text("tranasction", style: TextStyle(color: color2)),
                 ],
               ),
             ),
@@ -154,9 +182,9 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Text(
                     "Add",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: color2),
                   ),
-                  Text("saving goal", style: TextStyle(color: Colors.white)),
+                  Text("saving goal", style: TextStyle(color: color2)),
                 ],
               ),
             ),
@@ -164,15 +192,21 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _generate_analytics_floating_button() {
+  Widget _generate_analytics_floating_button(ThemeData theme) {
+    Color color1 = theme.brightness == Brightness.dark
+        ? Colors.white
+        : AppColors.darkBlueColor;
+    Color color2 =
+        theme.brightness == Brightness.dark ? Colors.black : Colors.white;
+
     return LayoutBuilder(
       builder: (context, constraints) => FabCircularMenuPlus(
-          fabColor: Colors.blueAccent.withOpacity(0.9),
+          fabColor: color1,
           fabChild: Icon(
             Icons.download,
-            color: Colors.white,
+            color: color2,
           ),
-          ringColor: Colors.blue.withOpacity(1),
+          ringColor: color1,
           ringWidth: constraints.maxWidth * 0.22,
           ringDiameter: constraints.maxWidth * 0.9,
           children: <Widget>[
@@ -183,9 +217,9 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Text(
                     "generate this",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: color2),
                   ),
-                  Text("month pdf", style: TextStyle(color: Colors.white)),
+                  Text("month pdf", style: TextStyle(color: color2)),
                 ],
               ),
             ),
@@ -267,9 +301,9 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Text(
                     "generate",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: color2),
                   ),
-                  Text("custom pdf", style: TextStyle(color: Colors.white)),
+                  Text("custom pdf", style: TextStyle(color: color2)),
                 ],
               ),
             ),
@@ -278,44 +312,59 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class MainContainer extends StatelessWidget {
+class MainContainer extends ConsumerWidget {
   final Widget child;
   const MainContainer({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    ThemeData appTheme =
+        themeMode == ThemeMode.dark ? AppDarkTheme : AppLightTheme;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: LayoutBuilder(
         builder: (context, constraints) => Container(
           alignment: Alignment.topLeft,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerRight,
-              end: Alignment.centerLeft,
-              colors: [
-                AppColors.darkBlueColor,
-                Colors.black,
-              ],
-            ),
+            gradient: appTheme.brightness == Brightness.light
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.fromRGBO(220, 220, 225, 1),
+                      Colors.white,
+                    ],
+                  )
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.darkBlueColor,
+                      Colors.black,
+                    ],
+                  ),
           ),
           child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-              child: Stack(
-                children: [
-                  SizedBox(
-                      height: constraints.maxHeight,
-                      width: constraints.maxWidth,
-                      child: Opacity(
-                        opacity: 0.06,
-                        child: Image.asset("assets/images/pngegg.png",
-                            fit: BoxFit.fitHeight),
-                      )),
-                  SingleChildScrollView(child: child),
-                ],
-              ),
+            child: Stack(
+              children: [
+                SizedBox(
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: Opacity(
+                        opacity: themeMode == ThemeMode.dark ? 0.06 : 0.15,
+                        child: Image.asset(
+                            themeMode == ThemeMode.dark
+                                ? "assets/images/pngegg.png"
+                                : "assets/images/pngegg_light.png",
+                            fit: BoxFit.fitHeight))),
+                SingleChildScrollView(
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 20),
+                        child: child)),
+              ],
             ),
           ),
         ),

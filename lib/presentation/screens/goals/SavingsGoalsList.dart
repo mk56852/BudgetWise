@@ -90,8 +90,7 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Since your MainScreen already wraps screens in a SingleChildScrollView,
-    // we simply return a Column here.
+    ThemeData appTheme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +101,6 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ),
@@ -140,14 +138,15 @@ class _SavingsGoalListScreenState extends State<SavingsGoalListScreen> {
                             Icon(
                               Icons.receipt_long,
                               size: 80,
-                              color: Colors.white.withOpacity(0.5),
+                              color: appTheme.brightness == Brightness.dark
+                                  ? Colors.white.withOpacity(0.7)
+                                  : Colors.black,
                             ),
                             SizedBox(height: 10),
                             Text(
                               "No records yet",
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.white.withOpacity(0.7),
                               ),
                             ),
                           ],

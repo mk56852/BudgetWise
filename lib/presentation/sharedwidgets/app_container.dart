@@ -1,4 +1,4 @@
-import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:flutter/material.dart';
 
 class AppContainer extends StatelessWidget {
@@ -15,15 +15,29 @@ class AppContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: fillWidth ? double.maxFinite : null,
-      height: height,
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-      decoration: BoxDecoration(
-        color: color == null ? AppColors.containerColor : color,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: child,
-    );
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = Theme.of(context).extension<AppTheme>()!;
+    if (appTheme.brightness == Brightness.dark)
+      return Container(
+        width: fillWidth ? double.maxFinite : null,
+        height: height,
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: color == null ? theme.containerColor : color,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: child,
+      );
+    else
+      return Container(
+        width: fillWidth ? double.maxFinite : null,
+        height: height,
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: color == null ? theme.containerColor : color,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: child,
+      );
   }
 }

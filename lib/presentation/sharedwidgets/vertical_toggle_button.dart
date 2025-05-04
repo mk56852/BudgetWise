@@ -1,3 +1,5 @@
+import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:flutter/material.dart';
 
 class VerticalToggleButton extends StatelessWidget {
@@ -12,6 +14,18 @@ class VerticalToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
+    Color selectedColor = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.2)
+        : AppColors.darkBlueColor.withOpacity(0.9);
+    Color unselectedColor = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.06)
+        : AppColors.darkBlueColor.withOpacity(0.06);
+    Color textSelectedColor = Colors.white;
+    Color textunselectedColor = appTheme.brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.8)
+        : Colors.black;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(items.length, (index) {
@@ -22,9 +36,7 @@ class VerticalToggleButton extends StatelessWidget {
             padding: const EdgeInsets.all(12.0),
             width: MediaQuery.of(context).size.width * 0.6,
             decoration: BoxDecoration(
-              color: selectedIndex == index
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.white.withOpacity(0.06),
+              color: selectedIndex == index ? selectedColor : unselectedColor,
               borderRadius: BorderRadius.circular(12.0),
             ),
             child: Text(
@@ -33,8 +45,8 @@ class VerticalToggleButton extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: selectedIndex == index
-                    ? Colors.white
-                    : Colors.white.withOpacity(0.7),
+                    ? textSelectedColor
+                    : textunselectedColor,
               ),
             ),
           ),

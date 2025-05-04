@@ -21,7 +21,6 @@ class BudgetHistoryScreen extends StatelessWidget {
           },
           child: Icon(
             Icons.arrow_back,
-            color: Colors.white,
           )),
       SizedBox(
         height: 10,
@@ -32,7 +31,6 @@ class BudgetHistoryScreen extends StatelessWidget {
           width: 80,
           child: Icon(
             Icons.history,
-            color: Colors.white,
             size: 48,
           ),
         ),
@@ -40,7 +38,7 @@ class BudgetHistoryScreen extends StatelessWidget {
       Center(
         child: Text(
           "Budget History",
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
         ),
       ),
       SizedBox(

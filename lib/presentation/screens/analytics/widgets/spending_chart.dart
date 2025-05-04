@@ -61,6 +61,17 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
 
   @override
   Widget build(BuildContext context) {
+    Color c1 = Theme.of(context).brightness == Brightness.dark
+        ? Colors.blue.withOpacity(0.25)
+        : AppColors.darkBlueColor.withOpacity(0.1);
+
+    Color c2 = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.7)
+        : AppColors.darkBlueColor.withOpacity(0.9);
+
+    Color c3 = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.7)
+        : AppColors.darkBlueColor;
     return Center(
       // Centering the widget
       child: Column(
@@ -114,14 +125,14 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                           Icon(
                             Icons.receipt_long,
                             size: 80,
-                            color: Colors.white.withOpacity(0.5),
+                            color: c2,
                           ),
                           SizedBox(height: 10),
                           Text(
                             "No records yet",
                             style: TextStyle(
                               fontSize: 18,
-                              color: Colors.white.withOpacity(0.7),
+                              color: c2,
                             ),
                           ),
                         ],
@@ -137,8 +148,9 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                               x: index,
                               barRods: [
                                 BarChartRodData(
+                                  color: c3,
                                   toY: items[AppCategories[index]] ?? 0,
-                                  color: Colors.white, // Updated bar color
+                                  // Updated bar color
                                   width: 12,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
@@ -164,7 +176,6 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                                         shortNames[
                                             value.toInt()], // Using short names
                                         style: const TextStyle(
-                                            color: Colors.white,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -179,8 +190,7 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                           gridData: FlGridData(
                             drawVerticalLine: false,
                             getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                  color: Colors.white70, strokeWidth: 0.2);
+                              return FlLine(color: c2, strokeWidth: 0.2);
                             },
                           ),
                         ),
@@ -195,9 +205,9 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                                   value: items[AppCategories[index]] ?? 0,
                                 );
                               }),
-                              borderColor: Colors.white,
                               borderWidth: 1,
-                              fillColor: Colors.blue.withOpacity(0.25),
+                              borderColor: c2,
+                              fillColor: c1,
                             ),
                           ],
                           radarTouchData: RadarTouchData(
@@ -214,22 +224,19 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                                     backgroundColor: AppColors.containerColor2,
                                     title: Text(
                                       category,
-                                      style: TextStyle(color: Colors.white),
                                     ),
                                     content: Text(
-                                        '${entry.value.toStringAsFixed(2)} DT',
-                                        style: TextStyle(color: Colors.white)),
+                                      '${entry.value.toStringAsFixed(2)} DT',
+                                    ),
                                   ),
                                 );
                               }
                             },
                           ),
                           radarBackgroundColor: Colors.transparent,
-                          radarBorderData:
-                              BorderSide(color: Colors.white70, width: 2),
+                          radarBorderData: BorderSide(color: c2, width: 2),
                           titlePositionPercentageOffset: 0.2,
                           titleTextStyle: const TextStyle(
-                            color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -240,12 +247,9 @@ class _ExpenseChartsState extends State<ExpenseCharts> {
                             );
                           },
                           tickCount: 4,
-                          ticksTextStyle: const TextStyle(
-                              color: Colors.white70, fontSize: 10),
-                          tickBorderData:
-                              BorderSide(color: Colors.white70, width: 0.5),
-                          gridBorderData:
-                              BorderSide(color: Colors.white70, width: 0.5),
+                          ticksTextStyle: TextStyle(color: c2, fontSize: 10),
+                          tickBorderData: BorderSide(color: c2, width: 0.5),
+                          gridBorderData: BorderSide(color: c2, width: 0.5),
                         ),
                       ),
           ),
@@ -262,6 +266,9 @@ class CategoryLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color c2 = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.7)
+        : Colors.black.withOpacity(0.8);
     final List<Map<String, String>> legendItems = [
       {"short": "F", "full": "Food & Dining"},
       {"short": "T", "full": "Transport"},
@@ -283,15 +290,13 @@ class CategoryLegend extends StatelessWidget {
           children: [
             Text(
               item["short"]!,
-              style: const TextStyle(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14),
+              style: TextStyle(
+                  color: c2, fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(width: 4),
             Text(
               item["full"]!,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(fontSize: 12),
             ),
           ],
         );

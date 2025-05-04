@@ -1,4 +1,5 @@
 import 'package:budget_wise/core/constants/Colors.dart';
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/notification.dart';
 import 'package:budget_wise/data/models/notification_type.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
@@ -17,10 +18,10 @@ class AppNotificationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Theme.of(context).extension<AppTheme>()!;
     return Padding(
       padding: EdgeInsets.only(top: 10),
       child: AppContainer(
-        color: notification.isRead ? null : AppColors.containerColor2,
         child: Row(
           children: [
             InkWell(
@@ -52,7 +53,7 @@ class AppNotificationItem extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: theme.containerColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -60,7 +61,6 @@ class AppNotificationItem extends StatelessWidget {
                         ? Icons.notifications_rounded
                         : Icons.notification_important,
                     size: 28,
-                    color: Colors.white,
                   ),
                 )),
             SizedBox(
@@ -69,7 +69,7 @@ class AppNotificationItem extends StatelessWidget {
             Expanded(
                 child: Text(
               notification.message!,
-              style: TextStyle(color: Colors.white, fontSize: 15),
+              style: TextStyle(fontSize: 15),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             )),
@@ -85,7 +85,6 @@ class AppNotificationItem extends StatelessWidget {
               },
               child: Icon(
                 Icons.delete,
-                color: Colors.white,
                 size: 25,
               ),
             )

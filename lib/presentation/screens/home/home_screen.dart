@@ -1,3 +1,4 @@
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/budget.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
@@ -5,8 +6,8 @@ import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/goals/add_goal_screen.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/goal_progress.dart';
 import 'package:budget_wise/presentation/screens/home/widgets/recent_transactions.dart';
+import 'package:budget_wise/presentation/screens/home/widgets/theme_mode_icon.dart';
 import 'package:budget_wise/presentation/screens/notification/notification_screen.dart';
-import 'package:budget_wise/presentation/screens/settings/settings_screen.dart';
 import 'package:budget_wise/presentation/screens/transactions/add_transaction_screen.dart';
 import 'package:budget_wise/presentation/sharedwidgets/SectionTitle.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
@@ -44,13 +45,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme appTheme = Theme.of(context).extension<AppTheme>()!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        generateBudgetInfo(),
+        generateBudgetInfo(appTheme),
         SizedBox(height: 10),
+        Center(
+            child: Text(
+          "Last 6 Budget Updates",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        )),
         BudgetChart(),
         SizedBox(height: 20),
         SectionTitle(
@@ -72,26 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget generateMenuIcons() {
+  Widget generateMenuIcons(AppTheme theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        InkWell(
-          onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => SettingScreen())),
-          child: Container(
-            height: 50,
-            width: 50,
-            child: Hero(
-              tag: "setting",
-              child: Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-          ),
-        ),
+        ThemeModeIcon(),
         InkWell(
           onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => NotificationScreen())),
@@ -102,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
               tag: "NotifBull",
               child: Icon(
                 Icons.notifications_active,
-                color: Colors.white,
+                color: theme.iconColorInsideContainer,
                 size: 30,
               ),
             ),
@@ -112,14 +104,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget generateBudgetInfo() {
+  Widget generateBudgetInfo(AppTheme theme) {
     return ValueListenableBuilder(
         valueListenable: AppServices.budgetService.budgetBoxListenable,
         builder: (context, Box<Budget> box, _) {
           return AppContainer(
+            color: theme.containerColor3,
             child: Column(
               children: [
-                generateMenuIcons(),
+                generateMenuIcons(theme),
                 SizedBox(
                   height: 5,
                 ),
@@ -131,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         "${widget.currentBudget.amount}",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textColorInsideContainer,
                           fontSize: 37,
                           fontWeight: FontWeight.bold,
                         ),
@@ -142,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         AppServices.userService.getCurrentUser()!.currency,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: theme.textColorInsideContainer,
                             fontSize: 20,
                             fontWeight: FontWeight.w300),
                       ),
@@ -154,7 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.all(5),
                     child: Text(
                       " You Current Available Budget ",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(
+                          color: theme.textColorInsideContainer, fontSize: 14),
                     ),
                   ),
                 ),
@@ -165,18 +159,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: AppIconButton(
                           icon: Icons.download,
+                          insideContainer: true,
                           onTap: () => addMoney(context),
                           text: "Deposit"),
                     ),
                     Expanded(
                       child: AppIconButton(
                           icon: Icons.upload,
+                          insideContainer: true,
                           onTap: () => removeMoney(context),
                           text: "Withdraw"),
                     ),
                     Expanded(
                       child: AppIconButton(
                           icon: Icons.savings,
+                          insideContainer: true,
                           onTap: () => widget.navigate(2),
                           text: "Save for goal"),
                     ),
@@ -266,7 +263,6 @@ class TransactionsList extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     "No Items",
-                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -363,7 +359,6 @@ class SavingsGoalItems extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     "No Items",
-                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -450,16 +445,20 @@ class BudgetChart extends StatelessWidget {
   /// Formats date as "EEE - dd - MM" for the x-axis
   String _formatDate(int index, List<BudgetHistoryEntry> history) {
     if (index < 0 || index >= history.length) return "";
-    return DateFormat('EEE - dd').format(history[index].updatedAt);
+    return history[index].amount.toString();
+    // return DateFormat('EEE - dd').format(history[index].updatedAt);
   }
 
   @override
   Widget build(BuildContext context) {
+    ThemeData appTheme = Theme.of(context);
+    AppTheme theme = appTheme.extension<AppTheme>()!;
+
     return ValueListenableBuilder(
         valueListenable: AppServices.budgetService.budgetBoxListenable,
         builder: (_, Box<Budget> box, w) {
           List<BudgetHistoryEntry> budgetHistory =
-              AppServices.budgetService.getBudget()!.history;
+              List.from(AppServices.budgetService.getBudget()!.history);
 
           // Sort by date
           budgetHistory.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
@@ -494,7 +493,6 @@ class BudgetChart extends StatelessWidget {
             height: 200,
             padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: LineChart(
@@ -516,11 +514,12 @@ class BudgetChart extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Text(
                             _formatDate(value.toInt(), budgetHistory),
-                            style: TextStyle(color: Colors.white, fontSize: 12),
+                            style:
+                                TextStyle(color: theme.textColor, fontSize: 12),
                           ),
                         );
                       },
-                      reservedSize: 45,
+                      reservedSize: 40,
                     ),
                   ),
                 ),
@@ -531,8 +530,15 @@ class BudgetChart extends StatelessWidget {
                     isCurved: true,
                     barWidth: 2,
                     isStrokeCapRound: true,
+                    color: appTheme.brightness == Brightness.dark
+                        ? Colors.white
+                        : theme.containerColor3,
                     belowBarData: BarAreaData(
-                        show: false, color: Colors.white.withOpacity(0.04)),
+                      show: true,
+                      color: appTheme.brightness == Brightness.dark
+                          ? Colors.white.withOpacity(0.1)
+                          : theme.containerColor3.withOpacity(0.1),
+                    ),
                   ),
                 ],
               ),

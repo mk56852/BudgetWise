@@ -1,6 +1,6 @@
-import 'package:budget_wise/data/models/budget.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
+import 'package:budget_wise/presentation/screens/transactions/widgets/recurring_transaction_tracker.dart';
 import 'package:budget_wise/presentation/sharedwidgets/action_button.dart';
 import 'package:budget_wise/presentation/sharedwidgets/tip_widget.dart';
 import 'package:budget_wise/services/app_services.dart';
@@ -28,7 +28,6 @@ class TransactionDetailsScreen extends StatelessWidget {
                       },
                       child: Icon(
                         Icons.arrow_back,
-                        color: Colors.white,
                       )),
                   SizedBox(
                     width: 20,
@@ -39,7 +38,6 @@ class TransactionDetailsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -56,16 +54,40 @@ class TransactionDetailsScreen extends StatelessWidget {
                   "Category", transaction.categoryId ?? "Not specified"),
               _detailItem(
                   "Date", transaction.date.toLocal().toString().split(' ')[0]),
-              _detailItem(
-                  "Already Achived ?", transaction.isAchieved ? "YES" : "NO"),
+              _detailItem("Already Achived ?",
+                  transaction.isTranAchieved() ? "YES" : "NO"),
               _detailItem(
                   "Is Recurring ?", transaction.isRecurring ? "YES" : "NO"),
               _detailItem(
                   "Description", transaction.description ?? "No description"),
-              SizedBox(
-                height: 30,
-              ),
-              transaction.isAchieved
+
+              transaction.isRecurring
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Text(
+                        "Transaction History",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      height: 20,
+                    ),
+              // Example usage in your app:
+              if (transaction.isRecurring)
+                RecurringTransactionTracker(
+                  transaction: transaction,
+                  achievedColor: Colors.green,
+                  missedColor: Colors.red,
+                  // Custom text color
+                ),
+              if (transaction.isRecurring)
+                SizedBox(
+                  height: 25,
+                ),
+              transaction.isTranAchieved()
                   ? SizedBox(
                       height: 5,
                     )
@@ -73,16 +95,19 @@ class TransactionDetailsScreen extends StatelessWidget {
                       child: Column(
                       children: [
                         TipWidget(
-                            message:
-                                "This transaction is scheduled for a later date. If it has already been realized click on the confirmation button",
+                            message: transaction.isRecurring
+                                ? "If it has already been realized for this month click on the confirmation button, or click on the current month case "
+                                : "This transaction is scheduled for a later date. If it has already been realized click on the confirmation button",
                             iconColor: Colors.redAccent),
                         SizedBox(
                           height: 15,
                         ),
                         SizedBox(
-                          width: 200,
+                          width: transaction.isRecurring ? 250 : 200,
                           child: AppActionButton(
-                              text: "Confirm Transaction",
+                              text: transaction.isRecurring
+                                  ? "Confirm for current month"
+                                  : "Confirm Transaction",
                               icon: Icons.done_all,
                               onTab: () => _showAchieveConfirmation(context)),
                         ),
@@ -91,6 +116,7 @@ class TransactionDetailsScreen extends StatelessWidget {
                         )
                       ],
                     )),
+
               Center(
                 child: SizedBox(
                   width: 200,
@@ -149,16 +175,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                transaction.isAchieved = true;
-                AppServices.transactionService.updateTransaction(transaction);
-                Budget budget = AppServices.budgetService.getBudget()!;
-                budget.lastAmount = budget.amount;
-                if (transaction.type == "income") {
-                  budget.amount += transaction.amount;
-                } else {
-                  budget.amount -= transaction.amount;
-                }
-                AppServices.budgetService.updateBudget(budget);
+                AppServices.transactionService.achieveTransaction(transaction);
                 Navigator.pop(context); // Close dialog
                 Navigator.pop(
                     context); // Return to previous screen after deletion
@@ -180,9 +197,9 @@ class TransactionDetailsScreen extends StatelessWidget {
         children: [
           Text(label,
               style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white)),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              )),
           SizedBox(
             width: 30,
           ),
@@ -190,7 +207,7 @@ class TransactionDetailsScreen extends StatelessWidget {
               child: Text(value,
                   overflow: TextOverflow.visible, // Prevent overflow
 
-                  style: TextStyle(fontSize: 15, color: Colors.white))),
+                  style: TextStyle(fontSize: 15))),
         ],
       ),
     );

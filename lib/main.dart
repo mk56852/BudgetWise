@@ -1,10 +1,11 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+
+import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/notification.dart';
 import 'package:budget_wise/data/models/notification_type.dart';
 import 'package:budget_wise/data/repositories/analytics_repository.dart';
 import 'package:budget_wise/data/repositories/budget_repository.dart';
-import 'package:budget_wise/data/repositories/category_repository.dart';
 import 'package:budget_wise/data/repositories/notification_repository.dart';
 import 'package:budget_wise/data/repositories/savings_goal_repository.dart';
 import 'package:budget_wise/data/repositories/settings_repository.dart';
@@ -15,7 +16,7 @@ import 'package:budget_wise/presentation/screens/introduction/into_screen.dart';
 import 'package:budget_wise/services/analytic_service.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:budget_wise/services/budget_service.dart';
-import 'package:budget_wise/services/category_service.dart';
+
 import 'package:budget_wise/services/notification_manager.dart';
 import 'package:budget_wise/services/notification_service.dart';
 import 'package:budget_wise/services/savings_goal_service.dart';
@@ -23,6 +24,7 @@ import 'package:budget_wise/services/settings_service.dart';
 import 'package:budget_wise/services/transaction_service.dart';
 import 'package:budget_wise/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'data/models/user.dart';
@@ -88,23 +90,26 @@ void main() async {
   if (AppServices.budgetService.getBudget() != null) {
     AppServices.analyticsService.fixAnalytics();
   }
+
+  AppServices.transactionService.fixRecurringTransactions();
+
   NotificationManager manager = NotificationManager();
   manager.checkAllNotification();
 
-  runApp(MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    ThemeData appTheme =
+        themeMode == ThemeMode.dark ? AppDarkTheme : AppLightTheme;
     return MaterialApp(
       title: 'Budget Wise',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: appTheme,
       home: AnimatedSplashScreen(
         centered: true,
         splashIconSize: 250,
