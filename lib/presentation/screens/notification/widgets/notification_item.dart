@@ -1,4 +1,3 @@
-import 'package:budget_wise/core/constants/Colors.dart';
 import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/notification.dart';
 import 'package:budget_wise/data/models/notification_type.dart';
@@ -24,54 +23,59 @@ class AppNotificationItem extends StatelessWidget {
       child: AppContainer(
         child: Row(
           children: [
-            InkWell(
-                onTap: () {
-                  notification.isRead = true;
-                  AppServices.notificationService
-                      .updateNotification(notification);
-                  if (notification.type ==
-                      NotificationType.TransactionDeadline) {
-                    Transaction transaction = AppServices.transactionService
-                        .getTransactionById(notification.objectId)!;
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TransactionDetailsScreen(
-                                transaction: transaction)));
-                  } else if (notification.type ==
-                      NotificationType.SavingGoalDeadline) {
-                    SavingsGoal savingsGoal = AppServices.savingsGoalService
-                        .getSavingsGoal(notification.objectId)!;
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => GoalsDetails(
-                                  goal: savingsGoal,
-                                )));
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: theme.containerColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    notification.isRead
-                        ? Icons.notifications_rounded
-                        : Icons.notification_important,
-                    size: 28,
-                  ),
-                )),
-            SizedBox(
-              width: 12,
-            ),
             Expanded(
-                child: Text(
-              notification.message!,
-              style: TextStyle(fontSize: 15),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+                child: InkWell(
+              onTap: () {
+                notification.isRead = true;
+                AppServices.notificationService
+                    .updateNotification(notification);
+                if (notification.type == NotificationType.TransactionDeadline) {
+                  Transaction transaction = AppServices.transactionService
+                      .getTransactionById(notification.objectId)!;
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TransactionDetailsScreen(
+                              transaction: transaction)));
+                } else if (notification.type ==
+                    NotificationType.SavingGoalDeadline) {
+                  SavingsGoal savingsGoal = AppServices.savingsGoalService
+                      .getSavingsGoal(notification.objectId)!;
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GoalsDetails(
+                                goal: savingsGoal,
+                              )));
+                }
+              },
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.containerColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      notification.isRead
+                          ? Icons.notifications_rounded
+                          : Icons.notification_important,
+                      size: 28,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 12,
+                  ),
+                  Expanded(
+                      child: Text(
+                    notification.message!,
+                    style: TextStyle(fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  )),
+                ],
+              ),
             )),
             SizedBox(
               width: 10,

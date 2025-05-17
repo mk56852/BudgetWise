@@ -46,4 +46,8 @@ class NotificationService {
     List<AppNotification> notifications = getAllNotifications();
     return notifications.where((element) => element.isRead == false).toList();
   }
+
+  int getNewNotificationLength() {
+    return getNewNotification().length;
+  }
 }

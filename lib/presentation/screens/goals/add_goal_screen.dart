@@ -1,5 +1,4 @@
 import 'package:budget_wise/core/constants/Colors.dart';
-import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/core/utils/utils.dart';
 import 'package:budget_wise/data/models/savings_goal.dart';
 import 'package:budget_wise/presentation/screens/MainScreen.dart';
@@ -58,7 +57,7 @@ class _AddSavingsGoalScreenState extends State<AddSavingsGoalScreen> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now(),
+      firstDate: widget.savingsGoal != null ? _selectedDate : DateTime.now(),
       lastDate: DateTime(2050),
     );
 

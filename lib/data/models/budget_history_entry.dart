@@ -34,9 +34,9 @@ class BudgetHistoryEntry {
           AppServices.savingsGoalService.getSavingsGoal(transactionId!);
       if (goal != null) {
         if (lastAmount > amount) {
-          return "Save money for goal :" + goal.name;
+          return "Save money for goal: " + goal.name;
         } else {
-          return "Get money back from Goal :" + goal.name;
+          return "Get money back from Goal: " + goal.name;
         }
       } else
         return "Savings Goal (deleted)";
@@ -48,9 +48,9 @@ class BudgetHistoryEntry {
       if (transaction != null) {
         String header = transaction.isRecurring ? "Recurring " : "";
         if (lastAmount > amount) {
-          return header + "Expense transaction :" + transaction.description!;
+          return header + "Expense transaction: " + transaction.description!;
         } else {
-          return header + "Income transaction :" + transaction.description!;
+          return header + "Income transaction: " + transaction.description!;
         }
       } else
         return "Transaction (deleted)";

@@ -71,7 +71,7 @@ class AppNotification {
         isRead = false,
         objectId = saving.id,
         scheduledTime = saving.deadline,
-        message = "Savings Goal ${saving.id} is passed its deadline";
+        message = "Savings Goal \"${saving.name}\" is passed its deadline";
 
   AppNotification.fromTransaction(Transaction tr)
       : id = generateId("Notif:"),
@@ -79,7 +79,7 @@ class AppNotification {
         isRead = false,
         objectId = tr.id,
         scheduledTime = tr.date,
-        message = "Transaction ${tr.id} is passed its deadline";
+        message = "Transaction \"${tr.description}\" is passed its deadline";
 
   @override
   bool operator ==(Object other) {

@@ -37,17 +37,17 @@ String generateId(String header) {
 String generatePriorityMessage(int priority, int? dayLeft) {
   switch (priority) {
     case 2:
-      return "This is a High priority goal. ${generateDayLeftMessage(dayLeft)}";
+      return "This is a High priority goal.";
     case 1:
-      return "This is a Medium priority goal. ${generateDayLeftMessage(dayLeft)}";
+      return "This is a Medium priority goal.";
     default:
-      return "This is a Low priority goal. ${generateDayLeftMessage(dayLeft)}";
+      return "This is a Low priority goal.";
   }
 }
 
 String generateDayLeftMessage(int? dayLeft) {
   if (dayLeft == null) {
-    return " Never give up! Success is getting what you want";
+    return " Never give up ! Success is getting what you want";
   }
   if (dayLeft > 30) {
     return "We still have more than a month to achieve it";

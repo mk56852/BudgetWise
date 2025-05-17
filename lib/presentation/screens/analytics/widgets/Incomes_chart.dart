@@ -111,7 +111,7 @@ class _IncomesChartState extends State<IncomesChart> {
           SizedBox(height: 16),
           AspectRatio(
             aspectRatio: 1.3,
-            child: items == null
+            child: items.isEmpty
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50),

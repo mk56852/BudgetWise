@@ -58,7 +58,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
     List<Transaction> achievedTransaction =
         AppServices.transactionService.getAchievedTransaction(transactions);
-    for (Transaction item in achievedTransaction) print(item.description!);
+
     List<Transaction> notAchived =
         AppServices.transactionService.getNotAchievedTransaction(transactions);
     List<Transaction> expenseTransactions = AppServices.transactionService
@@ -239,11 +239,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         ),
         AppContainer(
             child: Column(children: [
+          _generateTitle("Transactions History"),
+          SizedBox(
+            height: 15,
+          ),
           ...budgetHisto
               .take(4)
               .map((item) => BudgetHistoryItem(history: item)),
           SizedBox(
-            height: 15,
+            height: 25,
           ),
           AppActionButton(
               text: "Show All",
@@ -398,7 +402,7 @@ class BudgetWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData appTheme = Theme.of(context);
     Color color1 = appTheme.brightness == Brightness.dark
-        ? Colors.blue
+        ? Colors.black.withOpacity(0.5)
         : AppColors.darkBlueColor;
     double totalBudget = availableBudget + savedForGoals;
 
@@ -448,22 +452,22 @@ class BudgetWidget extends StatelessWidget {
   List<PieChartSectionData> _buildChartSections(Color color1) {
     return [
       PieChartSectionData(
-        color: color1,
+        color: Colors.white.withOpacity(0.9),
         value: availableBudget,
         title:
             "${(availableBudget / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
-        radius: 50,
+        radius: 45,
         titleStyle: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
       ),
       PieChartSectionData(
-        color: Colors.white.withOpacity(0.9),
+        color: color1,
         value: savedForGoals,
         title:
             "${(savedForGoals / (availableBudget + savedForGoals) * 100).toStringAsFixed(1)}%",
-        radius: 60,
+        radius: 55,
         titleStyle: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     ];
   }

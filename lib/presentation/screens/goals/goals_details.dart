@@ -204,6 +204,7 @@ class _GoalsDetailsState extends State<GoalsDetails> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    String currency = AppServices.userService.getCurrentUser()!.currency;
     final f = DateFormat('dd-MM-yyyy');
     int? daysRest;
     String description = _goal.notes ?? "there is no description";
@@ -299,16 +300,18 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
 
           SizedBox(height: 20),
-          TipWidget(
-            message: generatePriorityMessage(_goal.priority, null),
-            iconColor: Colors.green,
+          Center(
+            child: TipWidget(
+              message: generatePriorityMessage(_goal.priority, daysRest),
+              iconColor: Colors.green,
+            ),
           ),
           SizedBox(
             height: 10,
           ),
           if (daysRest != null)
             TipWidget(
-              message: "You Still have $daysRest days to achieve your goal",
+              message: generateDayLeftMessage(daysRest),
               iconColor: Colors.green,
             ),
           SizedBox(
@@ -316,8 +319,9 @@ class _GoalsDetailsState extends State<GoalsDetails> {
           ),
           if (savingDaily != 0)
             TipWidget(
-              message:
-                  "You can save $savingDaily each day and you will achieve your goal",
+              message: "You can save $savingDaily " +
+                  currency +
+                  " each day and you will achieve your goal",
               iconColor: Colors.green,
             ),
           SizedBox(height: 20),

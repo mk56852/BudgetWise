@@ -240,14 +240,17 @@ class PdfExporter {
   }
 
   static Future<bool> requestStoragePermission() async {
-    var status = await Permission.storage.request();
-    if (status.isGranted) {
-      return true;
-    } else if (status.isPermanentlyDenied) {
-      return await openAppSettings();
-    } else {
-      return false;
+    if (Platform.isAndroid && await Permission.manageExternalStorage.isDenied) {
+      // On Android 11+ request the “All files access” permission
+      final status = await Permission.manageExternalStorage.request();
+      return status.isGranted;
     }
+
+    // Below Android 11, or if manageExternalStorage isn’t supported:
+    final status = await Permission.storage.request();
+    if (status.isGranted) return true;
+    if (status.isPermanentlyDenied) await openAppSettings();
+    return false;
   }
 
   static void exportCurrentMonthData() async {

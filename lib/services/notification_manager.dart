@@ -136,11 +136,21 @@ class NotificationManager {
         .getNotAchievedTransaction(
             AppServices.transactionService.getAllTransactions());
     for (var transaction in transactions) {
-      if (transaction.date.isBefore(now) && !transaction.isAchieved) {
-        AppNotification notification =
-            AppNotification.fromTransaction(transaction);
-        if (!existingNotif.contains(notification)) {
-          AppServices.notificationService.addNotification(notification);
+      if (transaction.isRecurring) {
+        if (transaction.date.day < now.day && !transaction.isTranAchieved()) {
+          AppNotification notification =
+              AppNotification.fromTransaction(transaction);
+          if (!existingNotif.contains(notification)) {
+            AppServices.notificationService.addNotification(notification);
+          }
+        }
+      } else {
+        if (transaction.date.isBefore(now) && !transaction.isAchieved) {
+          AppNotification notification =
+              AppNotification.fromTransaction(transaction);
+          if (!existingNotif.contains(notification)) {
+            AppServices.notificationService.addNotification(notification);
+          }
         }
       }
     }

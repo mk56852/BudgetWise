@@ -61,9 +61,10 @@ class BudgetHistoryItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           history.getMessage(),
+                          maxLines: 2,
                           style: const TextStyle(
                             fontSize: 14,
-                            overflow: TextOverflow.ellipsis,
+                            overflow: TextOverflow.visible,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

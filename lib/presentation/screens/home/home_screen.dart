@@ -17,7 +17,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 
 //ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
@@ -31,16 +30,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _visible = false;
+  late int numberOfNewNotif = 0;
 
   @override
   void initState() {
     super.initState();
-    // Trigger the animation after the widget is built
-    Future.delayed(Duration(milliseconds: 100), () {
-      setState(() {
-        _visible = true;
-      });
-    });
+    numberOfNewNotif =
+        AppServices.notificationService.getNewNotificationLength();
   }
 
   @override
@@ -51,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        generateBudgetInfo(appTheme),
+        generateBudgetInfo(appTheme, numberOfNewNotif),
         SizedBox(height: 10),
         Center(
             child: Text(
@@ -79,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget generateMenuIcons(AppTheme theme) {
+  Widget generateMenuIcons(AppTheme theme, int length) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -87,24 +83,40 @@ class _HomeScreenState extends State<HomeScreen> {
         InkWell(
           onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => NotificationScreen())),
-          child: Container(
-            height: 50,
-            width: 50,
-            child: Hero(
-              tag: "NotifBull",
-              child: Icon(
-                Icons.notifications_active,
-                color: theme.iconColorInsideContainer,
-                size: 30,
+          child: Stack(
+            children: [
+              Container(
+                height: 50,
+                width: 50,
+                child: Hero(
+                  tag: "NotifBull",
+                  child: Icon(
+                    Icons.notifications_active,
+                    color: theme.iconColorInsideContainer,
+                    size: 30,
+                  ),
+                ),
               ),
-            ),
+              if (length != 0)
+                Positioned(
+                  top: 1,
+                  right: 3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.white60),
+                    height: 17,
+                    width: 17,
+                    child: Center(child: Text(length.toString())),
+                  ),
+                )
+            ],
           ),
         )
       ],
     );
   }
 
-  Widget generateBudgetInfo(AppTheme theme) {
+  Widget generateBudgetInfo(AppTheme theme, int newItems) {
     return ValueListenableBuilder(
         valueListenable: AppServices.budgetService.budgetBoxListenable,
         builder: (context, Box<Budget> box, _) {
@@ -112,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: theme.containerColor3,
             child: Column(
               children: [
-                generateMenuIcons(theme),
+                generateMenuIcons(theme, newItems),
                 SizedBox(
                   height: 5,
                 ),
