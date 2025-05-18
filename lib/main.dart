@@ -4,6 +4,7 @@ import 'package:budget_wise/core/constants/theme.dart';
 import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/notification.dart';
 import 'package:budget_wise/data/models/notification_type.dart';
+import 'package:budget_wise/data/models/recurring_transaction_history.dart';
 import 'package:budget_wise/data/repositories/analytics_repository.dart';
 import 'package:budget_wise/data/repositories/budget_repository.dart';
 import 'package:budget_wise/data/repositories/notification_repository.dart';
@@ -57,7 +58,7 @@ void main() async {
   Hive.registerAdapter(AnalyticsAdapter());
   Hive.registerAdapter(SettingsAdapter());
   Hive.registerAdapter(BudgetHistoryEntryAdapter());
-
+  Hive.registerAdapter(RecurringTransactionHistoryAdapter());
   Hive.registerAdapter(NotificationTypeAdapter());
 
   await Hive.openBox<User>('users');

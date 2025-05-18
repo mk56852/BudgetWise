@@ -3,13 +3,16 @@ import 'package:budget_wise/data/models/budget_history_entry.dart';
 import 'package:budget_wise/data/models/transaction.dart';
 import 'package:budget_wise/services/app_services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 
 class PdfExporter {
   static Future<void> exportToPdf(
+    BuildContext context,
     String title,
     List<Map<String, String>> generalInfo,
     List<Map<String, dynamic>> transactionData,
@@ -235,6 +238,18 @@ class PdfExporter {
       if (selectedFolder != null) {
         final file = File("$selectedFolder/$title.pdf");
         await file.writeAsBytes(await pdf.save());
+        showDialog(
+          context: context,
+          builder: (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: Lottie.asset('assets/images/Animation.json'),
+          ),
+        );
+
+        // Wait for 3 seconds before navigating
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.pop(context);
+        });
       }
     }
   }
@@ -273,7 +288,7 @@ class PdfExporter {
     }
   }
 
-  static void exportCurrentMonthData() async {
+  static void exportCurrentMonthData(BuildContext context) async {
     DateTime now = DateTime.now();
     int expensesNumber = AppServices.transactionService
         .getExpensesFromMonthYear(now.year, now.month)
@@ -313,11 +328,12 @@ class PdfExporter {
       },
     ];
     String month = now.month.toString() + " - " + now.year.toString();
-    await exportToPdf("Monthly Report  $month", generalInfo, sampleData,
-        await AppServices.budgetService.getAllHistory());
+    await exportToPdf(context, "Monthly Report  $month", generalInfo,
+        sampleData, await AppServices.budgetService.getAllHistory());
   }
 
-  static void exportCustomData(DateTime start, DateTime end) async {
+  static void exportCustomData(
+      BuildContext context, DateTime start, DateTime end) async {
     int expensesNumber = AppServices.transactionService
         .getExpensesForCustomDate(start, end)
         .length;
@@ -356,7 +372,7 @@ class PdfExporter {
     ];
     String startD = DateFormat.yMMMd().format(start);
     String endD = DateFormat.yMMMd().format(end);
-    await exportToPdf("Custom Report $startD - $endD", generalInfo, sampleData,
-        await AppServices.budgetService.getAllHistory());
+    await exportToPdf(context, "Custom Report $startD - $endD", generalInfo,
+        sampleData, await AppServices.budgetService.getAllHistory());
   }
 }

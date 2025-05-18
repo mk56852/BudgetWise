@@ -211,7 +211,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ringDiameter: constraints.maxWidth * 0.9,
           children: <Widget>[
             InkWell(
-              onTap: () => PdfExporter.exportCurrentMonthData(),
+              onTap: () => PdfExporter.exportCurrentMonthData(context),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -285,7 +285,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           onPressed: () {
                             if (startDate != null && endDate != null) {
                               PdfExporter.exportCustomData(
-                                  startDate!, endDate!);
+                                  context, startDate!, endDate!);
                             }
                             Navigator.of(context).pop();
                           },
