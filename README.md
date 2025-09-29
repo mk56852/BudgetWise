@@ -40,12 +40,12 @@ Framework: Flutter
 
 State Management: Riverpod
 
-Database & Persistence: Drift
- (SQLite ORM for Flutter)
+Database & Persistence: Hive
+
 
 Architecture: Clean Architecture
 
-Database Layer – persistent storage with Drift
+Database Layer – persistent storage with Hive
 
 Repositories – business logic abstraction
 
